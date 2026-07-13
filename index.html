@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>코스피 인 더 클래스 · 모의투자</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable.min.css">
 <style>
@@ -202,7 +205,7 @@ const LIVE_OK = !!sb;
 const START = 2000000; // 시작 예수금(원) = 200만원
 
 const COMPANIES = [
-  {k:'hwa',    name:'톡톡화학',  sector:'화학·소재',    color:'#F26A22', price:42000,  biz:'석유화학·첨단소재·배터리 소재',
+  {k:'hwa',    name:'미래케미칼', sector:'화학·소재',    color:'#F26A22', price:42000,  biz:'석유화학·첨단소재·배터리 소재',
    strat:['전기차 배터리·소재 기술에 집중','친환경 제품 개발','배터리·수소·헬스케어 등 글로벌 확장']},
   {k:'life',   name:'든든생명',  sector:'보험',        color:'#22A2D6', price:18000,  biz:'생명·연금보험·자산운용',
    strat:['세대별 맞춤형 보험상품','모바일·AI 보험설계 등 디지털화','자산운용·금융 협력 확대']},
@@ -210,7 +213,7 @@ const COMPANIES = [
    strat:['원스톱 종합 금융서비스','디지털 금융으로 고객 확대','ESG 경영·해외 시장 확대']},
   {k:'car',    name:'부릉모터스', sector:'자동차',      color:'#B8862B', price:88000,  biz:'자동차·미래차(전기·자율주행)',
    strat:['자율주행·스마트 기술 투자','해외 수출·기술 협력','전기·수소 등 친환경차 제작']},
-  {k:'pharm',  name:'토닥제약',  sector:'제약·바이오',  color:'#E8467C', price:51000,  biz:'의약품·신약·바이오시밀러',
+  {k:'pharm',  name:'튼튼제약',  sector:'제약·바이오',  color:'#E8467C', price:51000,  biz:'의약품·신약·바이오시밀러',
    strat:['바이오시밀러 시장 선도','세계 시장으로 수출','효율적 의약품 제조']},
   {k:'steel',  name:'단단철강',  sector:'철강·소재',    color:'#6B7684', price:33000,  biz:'철강 생산·에너지·건설',
    strat:['고품질 철강 생산','친환경 저탄소 생산 기술','건설·설비 등 사업 다각화']},
@@ -218,7 +221,7 @@ const COMPANIES = [
    strat:['혁신 기술 제품 개발','글로벌 시장 확장','지속적인 연구개발']},
   {k:'net',    name:'와글넷',    sector:'인터넷·플랫폼',color:'#F0501E', price:27000,  biz:'검색·SNS·커머스',
    strat:['소비자 맞춤 콘텐츠·서비스','글로벌 확장','AI·빅데이터 기술 혁신']},
-  {k:'tech',   name:'콩알칩',    sector:'반도체',      color:'#3B57A0', price:120000, biz:'컴퓨터 반도체·스마트폰',
+  {k:'tech',   name:'똑똑칩',    sector:'반도체',      color:'#3B57A0', price:120000, biz:'컴퓨터 반도체·스마트폰',
    strat:['반도체 기술 고도화','미국·중국 수출','대규모 투자·인수합병']},
   {k:'telecom',name:'말랑게임',  sector:'플랫폼·게임',  color:'#63BC44', price:9800,   biz:'SNS·게임·모바일 결제',
    strat:['통합 플랫폼 구축','결제·게임·음악·교통 확장','사용자 중심 서비스']},
@@ -241,7 +244,7 @@ const NEWS = {
     {sec:'보험',    hd:'보험 업계, 수익성 개선 열쇠 필요', bd:'저금리 장기화로 수익성 하락. 디지털 전환에도 주가는 정체.'},
     {sec:'자동차',  hd:'자동차 산업, 해외에서 힘 못 쓰나?', bd:'중국 판매 감소와 글로벌 경쟁 심화로 실적·주가 약세.'},
     {sec:'철강',    hd:'철강 업계, 수요 감소·가격 하락 직면', bd:'중국 과잉생산과 수요 둔화로 실적 부진, 주가 하락세.'},
-  ], lesson:'저유가로 <b>톡톡화학</b>, 바이오시밀러로 <b>토닥제약</b>, 디지털 금융으로 <b>꿀꿀은행</b>이 강세였어요. 반면 철강·자동차·저금리 보험은 약세. 관련 뉴스가 없던 와글넷·말랑게임은 큰 변화가 없었습니다.'},
+  ], lesson:'저유가로 <b>미래케미칼</b>, 바이오시밀러로 <b>튼튼제약</b>, 디지털 금융으로 <b>꿀꿀은행</b>이 강세였어요. 반면 철강·자동차·저금리 보험은 약세. 관련 뉴스가 없던 와글넷·말랑게임은 큰 변화가 없었습니다.'},
   2:{items:[
     {sec:'반도체', hd:'반도체·디스플레이 강세', bd:'글로벌 반도체 수요 급증과 차세대 디스플레이 성과로 관련 기업이 크게 성장.'},
     {sec:'배터리', hd:'전기차·이차전지 수요 급증', bd:'배터리 소재 산업 급성장. 고용량 배터리 기술 선도, 세계 시장 확대.'},
@@ -251,7 +254,7 @@ const NEWS = {
     {sec:'석유화학',hd:'유가·원자재 비용 상승', bd:'유가 급등으로 석유화학 원가 부담이 커지며 수익성 압박.'},
     {sec:'철강',   hd:'철강 약세 지속되나 일부 반등', bd:'여전히 부진하나 원자재 가격 상승·중동/아시아 수출로 일부 개선.'},
     {sec:'IT플랫폼',hd:'IT 호황 속 함정', bd:'광고·게임 성장 둔화, 신규 사업 성과 미흡으로 일부 플랫폼주 부진.'},
-  ], lesson:'반도체 수요 급증으로 <b>콩알칩</b>이 급등하고, 배터리 소재 수요로 <b>톡톡화학</b>이 반등했어요. 유가 상승은 화학에 부담이었지만 배터리 성장세가 이를 눌렀습니다. 광고·게임 부진으로 플랫폼주(와글넷·말랑게임)는 약세.'},
+  ], lesson:'반도체 수요 급증으로 <b>똑똑칩</b>이 급등하고, 배터리 소재 수요로 <b>미래케미칼</b>이 반등했어요. 유가 상승은 화학에 부담이었지만 배터리 성장세가 이를 눌렀습니다. 광고·게임 부진으로 플랫폼주(와글넷·말랑게임)는 약세.'},
   3:{items:[
     {sec:'거시',    hd:'본격적인 양적완화 시행', bd:'정부가 돈을 대거 풀어 경기 부양. 소비·투자 확대, 다만 물가 상승 우려도.'},
     {sec:'제약·바이오',hd:'코로나 백신 개발 성공!', bd:'백신·바이오 개발로 생명과학 강한 성장. 글로벌 매출·투자 확대.'},
@@ -264,15 +267,16 @@ const NEWS = {
   ], lesson:'양적완화와 코로나 수혜(백신·가전·반도체·플랫폼·배터리 소재)로 대부분 강세였어요. 저금리 직격탄을 맞은 보험(<b>든든생명</b>)만 하락했습니다. "돈이 풀리는 국면"의 힘을 보여주는 라운드예요.'},
   4:{items:[
     {sec:'금융',   hd:'꿀꿀은행, 최대 실적·주주환원', bd:'순이익 최대 전망. 자사주 대규모 매입·소각 발표로 투자자 신뢰, 주가 상승.'},
-    {sec:'반도체', hd:'반도체 명암… 번쩍전자 vs 콩알칩', bd:'번쩍전자는 기술 지연·납품 차질로 점유율↓·주가 약세. 반면 콩알칩은 AI 반도체 수요 급증으로 실적 개선.'},
+    {sec:'반도체', hd:'반도체 명암… 번쩍전자 vs 똑똑칩', bd:'번쩍전자는 기술 지연·납품 차질로 점유율↓·주가 약세. 반면 똑똑칩은 AI 반도체 수요 급증으로 실적 개선.'},
     {sec:'보험',   hd:'든든생명, 해외·자산운용 강화', bd:'아시아 계약 확대·자산운용 강화로 안정적 수익 기반, 주주 기대 상승.'},
-    {sec:'제약',   hd:'토닥제약, 코로나 이후 시험대', bd:'바이오시밀러 경쟁 심화로 매출 감소. R&D 비용 급증으로 순이익 30%+ 감소.'},
-    {sec:'화학·지배구조',hd:'톡톡화학, 배터리 사업 분할 발표', bd:"배터리 부문을 '톡톡에너지'로 물적분할. 경쟁력 강화 취지지만 핵심 성장동력 분리에 기존 주주 가치 우려도."},
+    {sec:'제약',   hd:'튼튼제약, 코로나 이후 시험대', bd:'바이오시밀러 경쟁 심화로 매출 감소. R&D 비용 급증으로 순이익 30%+ 감소.'},
+    {sec:'화학·지배구조',hd:'미래케미칼, 배터리 사업 분할 발표', bd:"배터리 부문을 '미래에너지'로 물적분할. 경쟁력 강화 취지지만 핵심 성장동력 분리에 기존 주주 가치 우려도."},
     {sec:'플랫폼', hd:'와글넷, 초대형 플랫폼의 위기', bd:'중국 커머스(테무·알리) 진입·해외 사업 불확실성·기관 매도세로 주가 약세.'},
     {sec:'플랫폼·지배구조',hd:'말랑게임, 진단 필요한 IT 대표', bd:'대표의 자사주 대량 매도·규제 강화·문어발 계열사 논란으로 신뢰 하락, 주가 부진.'},
-  ], lesson:'<b>꿀꿀은행</b>의 주주환원과 <b>콩알칩</b>의 AI 반도체 호재가 돋보인 반면, 반도체 위기설의 <b>번쩍전자</b>·경쟁 심화의 <b>토닥제약</b>·플랫폼 위기의 <b>와글넷·말랑게임</b>은 급락. <b>톡톡화학</b>은 좋은 소식(배터리 분할)에도 물적분할 우려로 주가가 하락했어요. 뉴스는 겉과 속을 함께 봐야 합니다.'},
+  ], lesson:'<b>꿀꿀은행</b>의 주주환원과 <b>똑똑칩</b>의 AI 반도체 호재가 돋보인 반면, 반도체 위기설의 <b>번쩍전자</b>·경쟁 심화의 <b>튼튼제약</b>·플랫폼 위기의 <b>와글넷·말랑게임</b>은 급락. <b>미래케미칼</b>은 좋은 소식(배터리 분할)에도 물적분할 우려로 주가가 하락했어요. 뉴스는 겉과 속을 함께 봐야 합니다.'},
 };
 const NROUNDS = 4;
+const VERSION = 'v2.1 · 미래케미칼·튼튼제약·똑똑칩';
 /* ===================== END CONFIG DATA ===================== */
 
 const el = id => document.getElementById(id);
@@ -375,6 +379,7 @@ function renderLanding(app){
     </div>
     ${liveNote}
     <div class="notice" style="margin-top:16px">📰 뉴스·기업은 선생님이 만든 <b>코스피일보</b> 자료를 반영했어요. 상승은 <span class="up" style="font-weight:800">빨강 ▲</span>, 하락은 <span class="down" style="font-weight:800">파랑 ▼</span> (국내 증시 표기).</div>
+    <div class="center tiny muted" style="margin-top:14px;opacity:.55">${VERSION}</div>
   </div>`;
 }
 
@@ -499,8 +504,6 @@ function hostFinal(){
       <div class="stat"><div class="l">참가 인원</div><div class="v num">${ranked.length}</div></div>
       <div class="stat"><div class="l">반 평균 수익률</div><div class="v num ${cls(avg-START)}">${sgn((avg/START-1)*100)}${((avg/START-1)*100).toFixed(1)}%</div></div>
       <div class="stat"><div class="l">최고 수익 종목</div><div class="v" style="font-size:15px;color:${best.color}">${best.name}</div></div></div>
-    <button class="btn btn-green btn-lg" onclick="downloadCSV()">📥 결과 CSV 내려받기 (엑셀에서 열림)</button>
-    <div class="tiny muted" style="margin-top:8px">모든 기록은 데이터베이스에도 자동 저장돼요. 언제든 다시 내려받을 수 있어요.</div>
   </div>
   <div class="card"><div class="plist">${rows||'<div class="center muted">참가자 없음</div>'}</div></div>
   <div class="card"><div class="callout"><div class="t">📌 마무리 코멘트</div>이번 게임 최고의 주식은 <b style="color:${best.color}">${best.name}</b>(4라운드 누적 <b>${sgn(best.sum)}${best.sum}%</b>)였어요. 매 라운드 최선의 종목으로 완벽히 갈아탔다면 <b>${won(perfect)}</b>까지 가능했습니다.</div>
@@ -510,38 +513,6 @@ function hostFinal(){
 }
 function bestStockOverall(){ let best=null; COMPANIES.forEach(c=>{const sum=RETURNS[1][c.k]+RETURNS[2][c.k]+RETURNS[3][c.k]+RETURNS[4][c.k]; if(!best||sum>best.sum) best={name:c.name,color:c.color,sum};}); return best; }
 function perfectPlay(){ let b=START; for(let rd=1;rd<=NROUNDS;rd++){ const best=Math.max(...COMPANIES.map(c=>RETURNS[rd][c.k])); b=b*(1+best/100);} return Math.round(b); }
-
-/* CSV export (host) */
-function picksStr(alloc){ return COMPANIES.filter(c=>(alloc&&alloc[c.k]||0)>0).map(c=>`${c.name} ${alloc[c.k]}주`).join(' / '); }
-function csvCell(v){ v=String(v==null?'':v); return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v; }
-function tsStr(){ const d=new Date(),p=n=>String(n).padStart(2,'0'); return `${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}_${p(d.getHours())}${p(d.getMinutes())}`; }
-function saveCSV(rows, name){
-  const csv='\ufeff'+rows.map(r=>r.map(csvCell).join(',')).join('\r\n');
-  const blob=new Blob([csv],{type:'text/csv;charset=utf-8'}); const url=URL.createObjectURL(blob);
-  const a=document.createElement('a'); a.href=url; a.download=name; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
-}
-async function downloadCSV(){
-  let players, subs;
-  if(ME.mode==='demo'){ players=PLAYERS.map(p=>({id:p.id,name:p.name,balance:p.balance})); subs=demoHistory.slice(); }
-  else {
-    const r1=await sb.from('invest_players').select('*').eq('room_id',ME.roomId); players=r1.data||[];
-    const r2=await sb.from('invest_submissions').select('*').eq('room_id',ME.roomId); subs=r2.data||[];
-  }
-  const ranked=[...players].sort((a,b)=>Number(b.balance)-Number(a.balance));
-  const byPR={}; subs.forEach(s=>{ byPR[s.player_id+'-'+s.round]=s; });
-  const head=['순위','이름','최종자산(원)','총수익률(%)'];
-  for(let rd=1;rd<=NROUNDS;rd++) head.push(`R${rd}손익`,`R${rd}자산`);
-  for(let rd=1;rd<=NROUNDS;rd++) head.push(`R${rd}매수내역`);
-  const rows=[head];
-  ranked.forEach((p,i)=>{
-    const ret=((Number(p.balance)/START-1)*100).toFixed(1);
-    const row=[i+1,p.name,Math.round(p.balance),ret];
-    for(let rd=1;rd<=NROUNDS;rd++){ const s=byPR[p.id+'-'+rd]; row.push(s?Math.round(s.gain):'', s?Math.round(s.end_balance):''); }
-    for(let rd=1;rd<=NROUNDS;rd++){ const s=byPR[p.id+'-'+rd]; row.push(s?picksStr(s.alloc):''); }
-    rows.push(row);
-  });
-  saveCSV(rows, `코스피인더클래스_결과_${tsStr()}.csv`);
-}
 
 /* news modal */
 function openNews(round){
