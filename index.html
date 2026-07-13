@@ -7,10 +7,10 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable.min.css">
 <style>
 /* =========================================================================
-   코스피 인 더 클래스 — 청소년 모의투자 (Kahoot 방식)
-   - 진행자(호스트) + 학생 + 오프라인 데모, 한 파일.
-   - 라이브 모드는 Supabase(방코드로 동시접속) 사용. 폴링(2초)으로 안정 동작.
-   - 게임 콘텐츠(기업/뉴스/수익률)는 아래 CONFIG DATA 블록에서 수정 가능.
+   코스피 인 더 클래스 — 청소년 모의투자 (Kahoot 방식) v2
+   - 진행자 + 학생 + 오프라인 데모, 한 파일. Supabase(방코드 동시접속) + 폴링(2초).
+   - 실제 주가 매매(주수/금액 입력), 라운드마다 주가 변동.
+   - 게임 콘텐츠(기업/주가/뉴스/수익률)는 아래 CONFIG DATA 블록에서 수정 가능.
    ========================================================================= */
 :root{
   --bg:#f4f5f7; --card:#ffffff; --ink:#17181c; --sub:#5a6270; --faint:#98a0ac;
@@ -28,26 +28,22 @@ body{font-family:var(--fs);background:var(--bg);color:var(--ink);line-height:1.5
 .up{color:var(--up)} .down{color:var(--down)} .flat{color:var(--flat)}
 
 #app{min-height:100%}
-.wrap{max-width:480px;margin:0 auto;padding:16px 14px 120px}
-.wrap.wide{max-width:920px}
+.wrap{max-width:480px;margin:0 auto;padding:16px 14px 210px}
+.wrap.wide{max-width:920px;padding-bottom:40px}
 
-/* top bar */
-.topbar{position:sticky;top:0;z-index:40;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);
-  border-bottom:1px solid var(--line);}
+.topbar{position:sticky;top:0;z-index:40;background:rgba(255,255,255,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
 .topbar .in{max-width:920px;margin:0 auto;padding:11px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px}
 .logo{display:flex;align-items:center;gap:8px;font-weight:800;font-size:15px;letter-spacing:-.02em}
 .logo .mk{font-weight:800;font-size:12px;color:#fff;background:var(--ink);border-radius:5px;padding:3px 6px;letter-spacing:.02em}
-.logo .g{color:var(--green)}
 .tb-right{display:flex;align-items:center;gap:14px}
 .tb-bal{text-align:right}
 .tb-bal .l{font-size:10px;color:var(--faint);letter-spacing:.03em}
-.tb-bal .v{font-weight:800;font-size:16px}
+.tb-bal .v{font-weight:800;font-size:15px}
 .pill{font-size:11px;font-weight:700;padding:4px 9px;border-radius:20px;background:#eef0f3;color:var(--sub)}
 .pill.live{background:var(--up-bg);color:var(--up)}
 .pill.live::before{content:"●";font-size:8px;margin-right:4px;vertical-align:1px}
 .pill.demo{background:#fff5e0;color:#a9760a}
 
-/* cards / type */
 .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;box-shadow:var(--shadow)}
 .card + .card{margin-top:12px}
 h1{font-size:26px;font-weight:800;letter-spacing:-.03em;line-height:1.15}
@@ -57,41 +53,35 @@ h3{font-size:15px;font-weight:800;letter-spacing:-.01em}
 .eyebrow{font-size:12px;font-weight:800;letter-spacing:.02em;color:var(--green)}
 .hr{height:1px;background:var(--line);margin:14px 0;border:0}
 
-/* buttons */
-.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;border:none;cursor:pointer;
-  font-family:var(--fs);font-weight:800;font-size:16px;border-radius:12px;padding:15px 18px;transition:filter .12s,transform .06s,background .12s}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;border:none;cursor:pointer;font-family:var(--fs);font-weight:800;font-size:16px;border-radius:12px;padding:15px 18px;transition:filter .12s,transform .06s,background .12s}
 .btn:active{transform:translateY(1px)} .btn:disabled{opacity:.5;cursor:not-allowed}
 .btn-green{background:var(--green);color:#fff} .btn-green:hover:not(:disabled){background:var(--green-d)}
 .btn-dark{background:var(--ink);color:#fff} .btn-dark:hover:not(:disabled){filter:brightness(1.15)}
 .btn-line{background:#fff;color:var(--ink);border:1.5px solid var(--line2)} .btn-line:hover:not(:disabled){background:#fafbfc}
 .btn-sm{padding:11px 14px;font-size:14px;border-radius:10px}
+.btn-lg{padding:17px;font-size:17px}
 .btn-row{display:flex;gap:10px}
 
-input.field{width:100%;background:#fff;border:1.5px solid var(--line2);border-radius:11px;color:var(--ink);
-  padding:14px;font-family:var(--fs);font-size:16px;font-weight:600;transition:border .12s}
+input.field{width:100%;background:#fff;border:1.5px solid var(--line2);border-radius:11px;color:var(--ink);padding:14px;font-family:var(--fs);font-size:16px;font-weight:600}
 input.field:focus{outline:none;border-color:var(--green)}
 input.field::placeholder{color:var(--faint);font-weight:500}
 .label{font-size:13px;font-weight:700;color:var(--sub);margin-bottom:7px;display:block}
 .code-field{text-align:center;letter-spacing:.35em;font-weight:800;font-size:22px;text-transform:uppercase}
 
-/* landing choices */
-.choice{display:flex;align-items:center;gap:14px;width:100%;text-align:left;background:#fff;border:1.5px solid var(--line);
-  border-radius:14px;padding:16px;cursor:pointer;transition:border .12s,transform .06s,box-shadow .12s;box-shadow:var(--shadow)}
+.choice{display:flex;align-items:center;gap:14px;width:100%;text-align:left;background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:16px;cursor:pointer;transition:border .12s,transform .06s;box-shadow:var(--shadow)}
 .choice:hover{border-color:var(--green);transform:translateY(-1px)}
-.choice:active{transform:translateY(0)}
 .choice .ic{flex:none;width:46px;height:46px;border-radius:12px;display:grid;place-items:center;font-size:22px}
 .choice .t{flex:1;min-width:0}
 .choice .t b{font-size:16px;font-weight:800;display:block}
 .choice .t span{font-size:12.5px;color:var(--sub)}
 .choice .ar{color:var(--faint);font-size:18px}
 
-/* segmented */
 .seg{display:flex;background:#eef0f3;border-radius:11px;padding:4px;gap:4px;margin-bottom:14px}
-.seg button{flex:1;border:none;background:transparent;font-family:var(--fs);font-weight:800;font-size:14px;color:var(--sub);
-  padding:9px;border-radius:8px;cursor:pointer;transition:.12s}
+.seg button{flex:1;border:none;background:transparent;font-family:var(--fs);font-weight:800;font-size:14px;color:var(--sub);padding:9px;border-radius:8px;cursor:pointer;transition:.12s}
 .seg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.seg.mini2{margin-bottom:10px}
+.seg.mini2 button{padding:7px;font-size:13px}
 
-/* news */
 .news-item{border-bottom:1px solid var(--line);padding:13px 0}
 .news-item:first-child{padding-top:2px} .news-item:last-child{border-bottom:none;padding-bottom:2px}
 .news-item .sec{display:inline-block;font-size:11px;font-weight:800;color:var(--sub);background:#f0f2f5;border-radius:5px;padding:2px 7px;margin-bottom:6px}
@@ -101,7 +91,6 @@ input.field::placeholder{color:var(--faint);font-weight:500}
 .paper-head .k{font-size:10px;font-weight:700;letter-spacing:.28em;color:var(--sub)}
 .paper-head .t{font-size:20px;font-weight:800;letter-spacing:.06em}
 
-/* company allocation rows */
 .co{border:1px solid var(--line);border-radius:12px;padding:12px 13px;margin-bottom:9px;transition:border .12s,background .12s}
 .co.active{border-color:var(--green);background:var(--green-bg)}
 .co-top{display:flex;align-items:center;gap:11px}
@@ -109,74 +98,74 @@ input.field::placeholder{color:var(--faint);font-weight:500}
 .co .meta{flex:1;min-width:0}
 .co .nm{font-weight:800;font-size:15px;letter-spacing:-.01em}
 .co .tag{font-size:11.5px;color:var(--sub)}
-.co .inbox{flex:none;display:flex;align-items:center;gap:5px}
-.co input.amt{width:82px;background:#fff;border:1.5px solid var(--line2);border-radius:9px;padding:8px 9px;
-  font-family:var(--fs);font-weight:800;font-size:15px;text-align:right;color:var(--ink);-moz-appearance:textfield}
-.co input.amt:focus{outline:none;border-color:var(--green)}
-.co input.amt::-webkit-outer-spin-button,.co input.amt::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
-.co .won{font-size:11px;color:var(--faint);font-weight:700}
-.co-tools{display:flex;align-items:center;gap:6px;margin-top:9px;flex-wrap:wrap}
-.chip{border:1px solid var(--line2);background:#fff;color:var(--sub);font-family:var(--fs);font-weight:800;font-size:11.5px;
-  border-radius:20px;padding:5px 10px;cursor:pointer;transition:.12s}
+.co .px{flex:none;text-align:right}
+.co .px .p{font-weight:800;font-size:15px}
+.co .px .pl{font-size:10.5px;color:var(--faint)}
+.co-buy{display:flex;align-items:center;gap:7px;margin-top:11px}
+.co-buy input.amt{flex:1;min-width:0;background:#fff;border:1.5px solid var(--line2);border-radius:9px;padding:10px 11px;font-family:var(--fs);font-weight:800;font-size:15px;text-align:right;color:var(--ink);-moz-appearance:textfield}
+.co-buy input.amt:focus{outline:none;border-color:var(--green)}
+.co-buy input.amt::-webkit-outer-spin-button,.co-buy input.amt::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.co-buy .unit{font-size:12.5px;color:var(--sub);font-weight:700;flex:none}
+.co-buy .st{flex:none;width:34px;height:38px;border:1.5px solid var(--line2);background:#fff;border-radius:9px;font-size:18px;font-weight:800;color:var(--sub);cursor:pointer}
+.co-buy .st:hover{border-color:var(--green);color:var(--green)}
+.co-tools{display:flex;align-items:center;gap:6px;margin-top:8px;flex-wrap:wrap}
+.chip{border:1px solid var(--line2);background:#fff;color:var(--sub);font-family:var(--fs);font-weight:800;font-size:11.5px;border-radius:20px;padding:5px 10px;cursor:pointer}
 .chip:hover{border-color:var(--green);color:var(--green)}
 .chip.info{margin-left:auto;border-style:dashed}
+.co-order{margin-top:8px;font-size:12.5px;color:var(--sub);font-weight:600;text-align:right}
+.co-order b{color:var(--ink)}
 .co-info{margin-top:10px;padding:11px;background:#f7f8fa;border-radius:9px;font-size:12.5px;color:var(--sub);line-height:1.6;display:none}
 .co-info.show{display:block}
 .co-info b{color:var(--ink)} .co-info ul{margin:5px 0 0 15px} .co-info li{margin:2px 0}
 
-/* sticky invest footer */
-.footer{position:fixed;left:0;right:0;bottom:0;z-index:50;background:rgba(255,255,255,.96);backdrop-filter:blur(10px);
-  border-top:1px solid var(--line);padding:11px 14px calc(11px + env(safe-area-inset-bottom));}
+.footer{position:fixed;left:0;right:0;bottom:0;z-index:50;background:rgba(255,255,255,.97);backdrop-filter:blur(10px);border-top:1px solid var(--line);padding:12px 14px calc(16px + env(safe-area-inset-bottom));box-shadow:0 -6px 20px -12px rgba(20,22,30,.18)}
 .footer .in{max-width:480px;margin:0 auto}
-.footer .row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:9px;font-size:13px}
-.footer .row .v{font-weight:800;font-size:16px}
-.footer .cash{color:var(--green)}
-.allocbar{height:8px;border-radius:5px;background:#eef0f3;overflow:hidden;display:flex;margin-bottom:11px}
+.allocbar{height:8px;border-radius:5px;background:#eef0f3;overflow:hidden;display:flex;margin-bottom:10px}
 .allocbar span{height:100%}
+.frow{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:11px;font-size:13.5px;color:var(--sub)}
+.frow b{font-weight:800;font-size:16px;color:var(--ink)}
+.frow .cash{color:var(--green)}
 
-/* result table */
 .rtab{width:100%;border-collapse:collapse}
-.rtab th,.rtab td{text-align:left;padding:11px 6px;border-bottom:1px solid var(--line);font-size:13.5px}
+.rtab th,.rtab td{text-align:left;padding:11px 6px;border-bottom:1px solid var(--line);font-size:13px}
 .rtab th{font-size:11.5px;color:var(--faint);font-weight:700}
-.rtab td.r{text-align:right} .rtab .co-cell{display:flex;align-items:center;gap:9px}
+.rtab td.r{text-align:right}
+.rtab .co-cell{display:flex;align-items:center;gap:9px}
 .rtab .dot{width:26px;height:26px;border-radius:7px;display:grid;place-items:center;color:#fff;font-weight:800;font-size:12px;flex:none}
+.rtab .px2{font-size:11.5px;color:var(--sub);font-family:var(--fs)}
 .pct{font-weight:800;font-variant-numeric:tabular-nums}
 .pct .a{font-size:11px;margin-right:2px}
 
-/* my result cards */
 .res-line{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--line)}
 .res-line:last-child{border-bottom:none}
 .res-line .l{display:flex;align-items:center;gap:9px}
 .res-line .rq{text-align:right}
 .bigres{text-align:center;padding:20px 0 6px}
 .bigres .l{font-size:12px;color:var(--sub)}
-.bigres .v{font-size:40px;font-weight:800;letter-spacing:-.03em;line-height:1}
-.bigres .d{font-weight:800;font-size:16px;margin-top:4px}
+.bigres .v{font-size:34px;font-weight:800;letter-spacing:-.03em;line-height:1}
+.bigres .d{font-weight:800;font-size:15px;margin-top:5px}
 .callout{background:#f7f8fa;border:1px solid var(--line);border-radius:12px;padding:14px;margin-top:12px;font-size:13.5px;line-height:1.6;color:var(--sub)}
 .callout b{color:var(--ink)}
 .callout .t{font-weight:800;color:var(--gold);font-size:12.5px;margin-bottom:5px}
 
-/* dashboard */
 .stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
 .stat{background:#fff;border:1px solid var(--line);border-radius:12px;padding:13px;text-align:center}
 .stat .l{font-size:11px;color:var(--sub);font-weight:700}
-.stat .v{font-size:22px;font-weight:800;margin-top:3px}
+.stat .v{font-size:20px;font-weight:800;margin-top:3px}
 .plist{display:flex;flex-direction:column;gap:7px}
 .prow{display:flex;align-items:center;gap:11px;background:#fff;border:1px solid var(--line);border-radius:11px;padding:11px 13px}
 .prow .rk{flex:none;width:26px;text-align:center;font-weight:800;font-size:14px;color:var(--sub)}
 .prow .rk.top{color:var(--gold)}
 .prow .pn{flex:1;min-width:0;font-weight:700;font-size:14.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.prow .pb{font-weight:800;font-size:14.5px;text-align:right}
+.prow .pb{font-weight:800;font-size:14px;text-align:right}
 .prow .tagx{font-size:10.5px;font-weight:800;padding:3px 8px;border-radius:20px}
 .tag-wait{background:#f0f2f5;color:var(--faint)} .tag-done{background:var(--green-bg);color:var(--green-d)}
 .qrbox{display:flex;gap:16px;align-items:center;flex-wrap:wrap;justify-content:center}
 .qrbox img{width:150px;height:150px;border:1px solid var(--line);border-radius:12px;background:#fff}
-.bigcode{font-size:40px;font-weight:800;letter-spacing:.18em;text-align:center;background:#f7f8fa;border:2px dashed var(--line2);
-  border-radius:14px;padding:16px;margin:2px 0}
+.bigcode{font-size:38px;font-weight:800;letter-spacing:.18em;text-align:center;background:#f7f8fa;border:2px dashed var(--line2);border-radius:14px;padding:16px;margin:2px 0}
 .joinurl{font-size:12px;color:var(--sub);word-break:break-all;background:#f7f8fa;border-radius:8px;padding:9px 11px;text-align:center}
 
-.spacer{height:12px}
-.center{text-align:center}
+.spacer{height:12px} .center{text-align:center}
 .badge-lg{width:56px;height:56px;border-radius:16px;display:grid;place-items:center;color:#fff;font-weight:800;font-size:22px;margin:0 auto}
 .waitdots::after{content:"";animation:wd 1.4s steps(4,end) infinite}
 @keyframes wd{0%{content:""}25%{content:"."}50%{content:".."}75%{content:"..."}}
@@ -184,13 +173,12 @@ input.field::placeholder{color:var(--faint);font-weight:500}
 .link{color:var(--green);font-weight:700;cursor:pointer;text-decoration:none}
 :focus-visible{outline:2.5px solid var(--green);outline-offset:2px}
 
-/* modal */
-.modal-bg{position:fixed;inset:0;background:rgba(15,17,22,.5);z-index:100;display:flex;align-items:flex-end;justify-content:center;padding:0}
+.modal-bg{position:fixed;inset:0;background:rgba(15,17,22,.5);z-index:100;display:flex;align-items:flex-end;justify-content:center}
 .modal{background:var(--bg);width:100%;max-width:480px;max-height:88vh;overflow:auto;border-radius:18px 18px 0 0;padding:16px 14px 30px}
 .modal .mh{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
 .modal .x{border:none;background:#eef0f3;width:34px;height:34px;border-radius:50%;font-size:18px;cursor:pointer;font-weight:700;color:var(--sub)}
 
-@media (max-width:400px){ .co input.amt{width:74px} .bigcode{font-size:32px} }
+@media (max-width:400px){ .bigcode{font-size:32px} .co-buy .st{width:32px} }
 @media (prefers-reduced-motion:reduce){*{animation-duration:.001s!important}}
 </style>
 </head>
@@ -202,7 +190,6 @@ input.field::placeholder{color:var(--faint);font-weight:500}
 /* ===================== CONFIG (백엔드 접속) ===================== */
 const CFG = {
   url: 'https://ejuzbtktohpqcrluviqa.supabase.co',
-  // 클라이언트 공개용 anon 키(RLS로 보호됨, 노출 안전)
   key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVqdXpidGt0b2hwcWNybHV2aXFhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MDcxMzksImV4cCI6MjA5NzE4MzEzOX0.q08cc2U4jXq0AMG-Lggo6a79WEIWHxZD5lhzCLSaGu4',
 };
 let sb = null;
@@ -210,29 +197,30 @@ try { if (window.supabase && CFG.url && CFG.key) sb = window.supabase.createClie
 const LIVE_OK = !!sb;
 
 /* ===================== CONFIG DATA (게임 콘텐츠) =====================
-   기업/뉴스/수익률만 바꾸면 게임 내용이 바뀝니다. 단위: 만원 / 수익률 %  */
-const START = 1000; // 시작 예수금(만원)
+   기업/주가/뉴스/수익률만 바꾸면 게임 내용이 바뀝니다.
+   price = 1라운드 시작 주가(원). 이후 라운드 주가는 수익률(RETURNS)로 자동 계산됩니다. */
+const START = 2000000; // 시작 예수금(원) = 200만원
 
 const COMPANIES = [
-  {k:'hwa',  name:'함께화학',   sector:'화학·소재',    color:'#F26A22', biz:'석유화학·첨단소재·배터리 소재',
+  {k:'hwa',    name:'톡톡화학',  sector:'화학·소재',    color:'#F26A22', price:42000,  biz:'석유화학·첨단소재·배터리 소재',
    strat:['전기차 배터리·소재 기술에 집중','친환경 제품 개발','배터리·수소·헬스케어 등 글로벌 확장']},
-  {k:'life', name:'상상생명',   sector:'보험',        color:'#22A2D6', biz:'생명·연금보험·자산운용',
+  {k:'life',   name:'든든생명',  sector:'보험',        color:'#22A2D6', price:18000,  biz:'생명·연금보험·자산운용',
    strat:['세대별 맞춤형 보험상품','모바일·AI 보험설계 등 디지털화','자산운용·금융 협력 확대']},
-  {k:'bank', name:'머니금융은행', sector:'금융',       color:'#C6A11E', biz:'은행·증권·보험·카드',
+  {k:'bank',   name:'꿀꿀은행',  sector:'금융',        color:'#C6A11E', price:65000,  biz:'은행·증권·보험·카드',
    strat:['원스톱 종합 금융서비스','디지털 금융으로 고객 확대','ESG 경영·해외 시장 확대']},
-  {k:'car',  name:'미래자동차',  sector:'자동차',      color:'#B8862B', biz:'자동차 제조·미래차(전기·자율주행)',
+  {k:'car',    name:'부릉모터스', sector:'자동차',      color:'#B8862B', price:88000,  biz:'자동차·미래차(전기·자율주행)',
    strat:['자율주행·스마트 기술 투자','해외 수출·기술 협력','전기·수소 등 친환경차 제작']},
-  {k:'pharm',name:'건강제약',   sector:'제약·바이오',  color:'#E8467C', biz:'의약품·신약·바이오시밀러',
+  {k:'pharm',  name:'토닥제약',  sector:'제약·바이오',  color:'#E8467C', price:51000,  biz:'의약품·신약·바이오시밀러',
    strat:['바이오시밀러 시장 선도','세계 시장으로 수출','효율적 의약품 제조']},
-  {k:'steel',name:'강해철강',   sector:'철강·소재',    color:'#6B7684', biz:'철강 생산·에너지·건설',
+  {k:'steel',  name:'단단철강',  sector:'철강·소재',    color:'#6B7684', price:33000,  biz:'철강 생산·에너지·건설',
    strat:['고품질 철강 생산','친환경 저탄소 생산 기술','건설·설비 등 사업 다각화']},
-  {k:'elec', name:'첨단전자',   sector:'전자·반도체',  color:'#2E6FD6', biz:'스마트폰·반도체·디스플레이·가전',
+  {k:'elec',   name:'번쩍전자',  sector:'전자·반도체',  color:'#2E6FD6', price:74000,  biz:'스마트폰·반도체·디스플레이·가전',
    strat:['혁신 기술 제품 개발','글로벌 시장 확장','지속적인 연구개발']},
-  {k:'net',  name:'누리넷',     sector:'인터넷·플랫폼',color:'#F0501E', biz:'검색·SNS·커머스',
+  {k:'net',    name:'와글넷',    sector:'인터넷·플랫폼',color:'#F0501E', price:27000,  biz:'검색·SNS·커머스',
    strat:['소비자 맞춤 콘텐츠·서비스','글로벌 확장','AI·빅데이터 기술 혁신']},
-  {k:'tech', name:'하이테크',   sector:'반도체',      color:'#3B57A0', biz:'컴퓨터 반도체·스마트폰',
+  {k:'tech',   name:'콩알칩',    sector:'반도체',      color:'#3B57A0', price:120000, biz:'컴퓨터 반도체·스마트폰',
    strat:['반도체 기술 고도화','미국·중국 수출','대규모 투자·인수합병']},
-  {k:'telecom',name:'새싹통신', sector:'플랫폼·게임',  color:'#63BC44', biz:'SNS·게임·모바일 결제',
+  {k:'telecom',name:'말랑게임',  sector:'플랫폼·게임',  color:'#63BC44', price:9800,   biz:'SNS·게임·모바일 결제',
    strat:['통합 플랫폼 구축','결제·게임·음악·교통 확장','사용자 중심 서비스']},
 ];
 
@@ -253,7 +241,7 @@ const NEWS = {
     {sec:'보험',    hd:'보험 업계, 수익성 개선 열쇠 필요', bd:'저금리 장기화로 수익성 하락. 디지털 전환에도 주가는 정체.'},
     {sec:'자동차',  hd:'자동차 산업, 해외에서 힘 못 쓰나?', bd:'중국 판매 감소와 글로벌 경쟁 심화로 실적·주가 약세.'},
     {sec:'철강',    hd:'철강 업계, 수요 감소·가격 하락 직면', bd:'중국 과잉생산과 수요 둔화로 실적 부진, 주가 하락세.'},
-  ], lesson:'저유가로 <b>함께화학</b>, 바이오시밀러로 <b>건강제약</b>, 디지털 금융으로 <b>머니금융은행</b>이 강세였어요. 반면 철강·자동차·저금리 보험은 약세. 관련 뉴스가 없던 누리넷·새싹통신은 큰 변화가 없었습니다.'},
+  ], lesson:'저유가로 <b>톡톡화학</b>, 바이오시밀러로 <b>토닥제약</b>, 디지털 금융으로 <b>꿀꿀은행</b>이 강세였어요. 반면 철강·자동차·저금리 보험은 약세. 관련 뉴스가 없던 와글넷·말랑게임은 큰 변화가 없었습니다.'},
   2:{items:[
     {sec:'반도체', hd:'반도체·디스플레이 강세', bd:'글로벌 반도체 수요 급증과 차세대 디스플레이 성과로 관련 기업이 크게 성장.'},
     {sec:'배터리', hd:'전기차·이차전지 수요 급증', bd:'배터리 소재 산업 급성장. 고용량 배터리 기술 선도, 세계 시장 확대.'},
@@ -263,7 +251,7 @@ const NEWS = {
     {sec:'석유화학',hd:'유가·원자재 비용 상승', bd:'유가 급등으로 석유화학 원가 부담이 커지며 수익성 압박.'},
     {sec:'철강',   hd:'철강 약세 지속되나 일부 반등', bd:'여전히 부진하나 원자재 가격 상승·중동/아시아 수출로 일부 개선.'},
     {sec:'IT플랫폼',hd:'IT 호황 속 함정', bd:'광고·게임 성장 둔화, 신규 사업 성과 미흡으로 일부 플랫폼주 부진.'},
-  ], lesson:'반도체 수요 급증으로 <b>하이테크</b>가 급등하고, 배터리 소재 수요로 <b>함께화학</b>이 반등했어요. 유가 상승은 화학에 부담이었지만 배터리 성장세가 이를 눌렀습니다. 광고·게임 부진으로 플랫폼주(누리넷·새싹통신)는 약세.'},
+  ], lesson:'반도체 수요 급증으로 <b>콩알칩</b>이 급등하고, 배터리 소재 수요로 <b>톡톡화학</b>이 반등했어요. 유가 상승은 화학에 부담이었지만 배터리 성장세가 이를 눌렀습니다. 광고·게임 부진으로 플랫폼주(와글넷·말랑게임)는 약세.'},
   3:{items:[
     {sec:'거시',    hd:'본격적인 양적완화 시행', bd:'정부가 돈을 대거 풀어 경기 부양. 소비·투자 확대, 다만 물가 상승 우려도.'},
     {sec:'제약·바이오',hd:'코로나 백신 개발 성공!', bd:'백신·바이오 개발로 생명과학 강한 성장. 글로벌 매출·투자 확대.'},
@@ -273,57 +261,55 @@ const NEWS = {
     {sec:'자동차',  hd:'반도체 부족 속 전기차 성장', bd:'생산 차질에도 전기차·친환경차 폭발 성장으로 상쇄, 세계 점유율 상승.'},
     {sec:'IT플랫폼',hd:'비대면이 만든 플랫폼 성장', bd:'클라우드·AI·커머스 두각으로 플랫폼 산업 성장.'},
     {sec:'보험',    hd:'저금리·불안한 경기 지속', bd:'저금리로 자산운용 수익성 악화, 보험 업계 침체 지속.'},
-  ], lesson:'양적완화와 코로나 수혜(백신·가전·반도체·플랫폼·배터리 소재)로 대부분 강세였어요. 저금리 직격탄을 맞은 보험(<b>상상생명</b>)만 하락했습니다. "돈이 풀리는 국면"의 힘을 보여주는 라운드예요.'},
+  ], lesson:'양적완화와 코로나 수혜(백신·가전·반도체·플랫폼·배터리 소재)로 대부분 강세였어요. 저금리 직격탄을 맞은 보험(<b>든든생명</b>)만 하락했습니다. "돈이 풀리는 국면"의 힘을 보여주는 라운드예요.'},
   4:{items:[
-    {sec:'금융',   hd:'머니금융, 최대 실적·주주환원', bd:'순이익 최대 전망. 자사주 대규모 매입·소각 발표로 투자자 신뢰, 주가 상승.'},
-    {sec:'반도체', hd:'"한국 반도체 위기설"', bd:'한 대형 전자기업은 기술 지연·납품 차질로 점유율↓·주가 약세. 반면 경쟁 반도체 기업은 AI 반도체 수요로 실적 개선.'},
-    {sec:'보험',   hd:'보험사, 해외·자산운용 강화', bd:'아시아 계약 확대·자산운용 강화로 안정적 수익 기반, 주주 기대 상승.'},
-    {sec:'제약',   hd:'제약업계, 코로나 이후 시험대', bd:'바이오시밀러 경쟁 심화로 매출 감소. R&D 비용 급증으로 순이익 30%+ 감소.'},
-    {sec:'화학·지배구조',hd:'함께화학, 배터리 사업 분할 발표', bd:"배터리 부문을 '함께에너지'로 물적분할. 경쟁력 강화 취지지만 핵심 성장동력 분리에 기존 주주 가치 우려도."},
-    {sec:'플랫폼', hd:'초대형 플랫폼의 위기', bd:'대표 검색·쇼핑 기업, 중국 커머스 진입·해외 불확실성·기관 매도세로 주가 약세.'},
-    {sec:'플랫폼·지배구조',hd:'진단 필요한 IT 대표기업', bd:'대표의 자사주 대량 매도·규제 강화·문어발 계열사 논란으로 신뢰 하락, 주가 부진.'},
-  ], lesson:'<b>머니금융은행</b>의 주주환원과 <b>하이테크</b>의 AI 반도체 호재가 돋보인 반면, 반도체 위기설의 <b>첨단전자</b>·경쟁 심화의 <b>건강제약</b>·플랫폼 위기의 <b>누리넷·새싹통신</b>은 급락. <b>함께화학</b>은 좋은 소식(배터리 분할)에도 물적분할 우려로 주가가 하락했어요. 뉴스는 겉과 속을 함께 봐야 합니다.'},
+    {sec:'금융',   hd:'꿀꿀은행, 최대 실적·주주환원', bd:'순이익 최대 전망. 자사주 대규모 매입·소각 발표로 투자자 신뢰, 주가 상승.'},
+    {sec:'반도체', hd:'반도체 명암… 번쩍전자 vs 콩알칩', bd:'번쩍전자는 기술 지연·납품 차질로 점유율↓·주가 약세. 반면 콩알칩은 AI 반도체 수요 급증으로 실적 개선.'},
+    {sec:'보험',   hd:'든든생명, 해외·자산운용 강화', bd:'아시아 계약 확대·자산운용 강화로 안정적 수익 기반, 주주 기대 상승.'},
+    {sec:'제약',   hd:'토닥제약, 코로나 이후 시험대', bd:'바이오시밀러 경쟁 심화로 매출 감소. R&D 비용 급증으로 순이익 30%+ 감소.'},
+    {sec:'화학·지배구조',hd:'톡톡화학, 배터리 사업 분할 발표', bd:"배터리 부문을 '톡톡에너지'로 물적분할. 경쟁력 강화 취지지만 핵심 성장동력 분리에 기존 주주 가치 우려도."},
+    {sec:'플랫폼', hd:'와글넷, 초대형 플랫폼의 위기', bd:'중국 커머스(테무·알리) 진입·해외 사업 불확실성·기관 매도세로 주가 약세.'},
+    {sec:'플랫폼·지배구조',hd:'말랑게임, 진단 필요한 IT 대표', bd:'대표의 자사주 대량 매도·규제 강화·문어발 계열사 논란으로 신뢰 하락, 주가 부진.'},
+  ], lesson:'<b>꿀꿀은행</b>의 주주환원과 <b>콩알칩</b>의 AI 반도체 호재가 돋보인 반면, 반도체 위기설의 <b>번쩍전자</b>·경쟁 심화의 <b>토닥제약</b>·플랫폼 위기의 <b>와글넷·말랑게임</b>은 급락. <b>톡톡화학</b>은 좋은 소식(배터리 분할)에도 물적분할 우려로 주가가 하락했어요. 뉴스는 겉과 속을 함께 봐야 합니다.'},
 };
 const NROUNDS = 4;
 /* ===================== END CONFIG DATA ===================== */
 
-/* ===================== state ===================== */
-const ME = { role:null, mode:null, roomId:null, roomCode:null, playerId:null, hostSecret:null, name:null };
-let ROOM = null, PLAYERS = [], SUBS = [], ALLPLAYERS = [];
-let myPlayer = null, mySub = null;
-let localAlloc = {}, allocInitRound = -1, studentTab = 'invest';
-let pollTimer = null, busy = false, lastSig = '';
-
-/* ===================== helpers ===================== */
-const $ = s => document.querySelector(s);
 const el = id => document.getElementById(id);
-const fmt = n => Math.round(Number(n)||0).toLocaleString('ko-KR');
 const co = k => COMPANIES.find(c=>c.k===k);
+const round10 = n => Math.round(n/10)*10;
+const fmt = n => Math.round(Number(n)||0).toLocaleString('ko-KR');
+const won = n => fmt(n)+'원';
+const man = n => fmt(Math.round(Number(n)/10000))+'만원';
 const sgn = n => n>0?'+':'';
 const cls = n => n>0?'up':(n<0?'down':'flat');
 const arw = n => n>0?'▲':(n<0?'▼':'―');
 const esc = s => String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function genCode(){const A='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let s='';for(let i=0;i<5;i++)s+=A[Math.floor(Math.random()*A.length)];return s;}
 function genSecret(){return Math.random().toString(36).slice(2)+Date.now().toString(36);}
+function priceAt(k, round){ let p = co(k).price; for(let i=1;i<round;i++){ p = round10(p*(1+(RETURNS[i][k]||0)/100)); } return round10(p); }
 function computeGain(alloc, round){
-  const r=RETURNS[round]||{}; let gain=0, invested=0; const per={};
-  COMPANIES.forEach(c=>{const amt=Math.max(0,Math.round(alloc[c.k]||0));const ret=r[c.k]||0;const g=Math.round(amt*ret/100);per[c.k]={amt,ret,gain:g};gain+=g;invested+=amt;});
-  return {gain,invested,per};
+  const r=RETURNS[round]||{}; let gain=0, spent=0; const per={};
+  COMPANIES.forEach(c=>{ const qty=Math.max(0,Math.floor(alloc[c.k]||0)); const price=priceAt(c.k,round); const ret=r[c.k]||0;
+    const newP=round10(price*(1+ret/100)); const cost=qty*price; const g=qty*(newP-price);
+    per[c.k]={qty,price,ret,newP,cost,gain:g}; gain+=g; spent+=cost; });
+  return {gain, spent, per};
 }
-function joinURL(code){ const base=location.origin+location.pathname; return base+'#/play?code='+code; }
+function joinURL(code){ return location.origin+location.pathname+'#/play?code='+code; }
 function myBalance(){ return Number((myPlayer&&myPlayer.balance)!=null?myPlayer.balance:START); }
 
-/* ===================== router ===================== */
-window.addEventListener('hashchange', ()=>{ /* only landing/join use hash directly */ if(!ME.role && location.hash.startsWith('#/play')){ renderJoinFromHash(); } });
-function go(hash){ location.hash=hash; }
+/* ===================== state ===================== */
+const ME = { role:null, mode:null, roomId:null, roomCode:null, playerId:null, hostSecret:null, name:null };
+let ROOM = null, PLAYERS = [], SUBS = [], ALLPLAYERS = [];
+let myPlayer = null, mySub = null;
+let localAlloc = {}, allocInitRound = -1, studentTab = 'news', inputMode = 'shares';
+let pollTimer = null, busy = false, lastSig = '';
+let demoHistory = [];
 
 /* ===================== polling ===================== */
-function startPolling(){
-  stopPolling();
-  const tick = ME.role==='host'? tickHost : tickStudent;
-  tick();
-  pollTimer = setInterval(tick, 2000);
-}
+window.addEventListener('hashchange', ()=>{ if(!ME.role && location.hash.startsWith('#/play')){ render(); } });
+function go(hash){ location.hash=hash; }
+function startPolling(){ stopPolling(); const t = ME.role==='host'?tickHost:tickStudent; t(); pollTimer=setInterval(t,2000); }
 function stopPolling(){ if(pollTimer){ clearInterval(pollTimer); pollTimer=null; } }
 
 async function tickHost(){
@@ -351,8 +337,6 @@ async function tickStudent(){
     paint(false);
   }catch(e){ console.warn('student tick',e); }
 }
-
-/* signature-gated repaint (protects student inputs) */
 function viewSig(){
   if(ME.role==='host') return `H|${ROOM&&ROOM.stage}|${ROOM&&ROOM.round}|${PLAYERS.length}|${SUBS.length}`;
   if(ME.role==='student') return `S|${ROOM&&ROOM.stage}|${ROOM&&ROOM.round}|${mySub?1:0}|${Math.round(myBalance())}|${ALLPLAYERS.length}`;
@@ -368,70 +352,48 @@ function render(){
   if(ME.role==='student') return renderStudent(app);
   return renderLanding(app);
 }
-
 function topbar(right){
   return `<div class="topbar"><div class="in">
     <div class="logo"><span class="mk">KOSPI</span><span>인 더 클래스</span></div>
-    <div class="tb-right">${right||''}</div>
-  </div></div>`;
+    <div class="tb-right">${right||''}</div></div></div>`;
 }
 
 /* ===================== LANDING ===================== */
 function renderLanding(app){
-  const liveNote = LIVE_OK ? '' :
-    `<div class="notice" style="margin-top:14px">⚠️ 온라인(동시접속) 서버에 연결하지 못했어요. 인터넷 연결을 확인하거나, <b>혼자 데모 체험</b>으로 먼저 둘러보세요.</div>`;
+  const liveNote = LIVE_OK ? '' : `<div class="notice" style="margin-top:14px">⚠️ 온라인(동시접속) 서버에 연결하지 못했어요. 인터넷을 확인하거나 <b>혼자 데모 체험</b>으로 먼저 둘러보세요.</div>`;
   app.innerHTML = topbar(`<span class="pill ${LIVE_OK?'live':''}">${LIVE_OK?'서버 연결됨':'오프라인'}</span>`) + `
   <div class="wrap">
     <div style="padding:22px 4px 18px">
       <div class="eyebrow">청소년 모의 금융투자 · 4라운드</div>
       <h1 style="margin:8px 0 8px">뉴스를 읽고,<br>주식을 골라라 📈</h1>
-      <p class="muted mini">코스피일보 4개 라운드의 경제뉴스를 읽고 10개 기업에 투자합니다. 진행자가 방을 열면 학생들은 앱 설치 없이 <b>방 코드</b>로 바로 참여해요.</p>
+      <p class="muted mini">경제뉴스를 읽고 10개 기업의 <b>주식을 사고파는</b> 게임입니다. 시작 자산은 <b>200만원</b>. 진행자가 방을 열면 학생들은 앱 설치 없이 <b>방 코드</b>로 참여해요.</p>
     </div>
     <div style="display:flex;flex-direction:column;gap:11px">
-      <button class="choice" onclick="hostStart()">
-        <span class="ic" style="background:var(--green-bg)">🎛️</span>
-        <span class="t"><b>진행자로 시작하기</b><span>방을 만들고 대시보드로 학생 전체를 관리해요</span></span>
-        <span class="ar">›</span></button>
-      <button class="choice" onclick="go('#/play')">
-        <span class="ic" style="background:var(--down-bg)">🎓</span>
-        <span class="t"><b>학생 참여하기</b><span>진행자가 알려준 방 코드로 입장해요</span></span>
-        <span class="ar">›</span></button>
-      <button class="choice" onclick="demoStart()">
-        <span class="ic" style="background:#fff5e0">🕹️</span>
-        <span class="t"><b>혼자 데모 체험</b><span>접속 없이 진행자·학생 화면을 미리 둘러봐요</span></span>
-        <span class="ar">›</span></button>
+      <button class="choice" onclick="hostStart()"><span class="ic" style="background:var(--green-bg)">🎛️</span><span class="t"><b>진행자로 시작하기</b><span>방을 만들고 대시보드로 학생 전체를 관리해요</span></span><span class="ar">›</span></button>
+      <button class="choice" onclick="go('#/play')"><span class="ic" style="background:var(--down-bg)">🎓</span><span class="t"><b>학생 참여하기</b><span>진행자가 알려준 방 코드로 입장해요</span></span><span class="ar">›</span></button>
+      <button class="choice" onclick="demoStart()"><span class="ic" style="background:#fff5e0">🕹️</span><span class="t"><b>혼자 데모 체험</b><span>접속 없이 진행자·학생 화면을 미리 둘러봐요</span></span><span class="ar">›</span></button>
     </div>
     ${liveNote}
-    <div class="notice" style="margin-top:16px">📰 이 게임의 뉴스·기업은 선생님이 만든 <b>코스피일보</b> 자료를 그대로 반영했어요. 상승은 <span class="up" style="font-weight:800">빨강 ▲</span>, 하락은 <span class="down" style="font-weight:800">파랑 ▼</span> (국내 증시 표기).</div>
+    <div class="notice" style="margin-top:16px">📰 뉴스·기업은 선생님이 만든 <b>코스피일보</b> 자료를 반영했어요. 상승은 <span class="up" style="font-weight:800">빨강 ▲</span>, 하락은 <span class="down" style="font-weight:800">파랑 ▼</span> (국내 증시 표기).</div>
   </div>`;
 }
 
 /* ===================== HOST ===================== */
-function hostStart(){
-  if(!LIVE_OK){ alert('온라인 서버에 연결되어 있지 않아 진행자 모드를 열 수 없어요. 데모 체험을 이용해 주세요.'); return; }
-  createRoomLive();
-}
+function hostStart(){ if(!LIVE_OK){ alert('온라인 서버에 연결되어 있지 않아 진행자 모드를 열 수 없어요. 데모 체험을 이용해 주세요.'); return; } createRoomLive(); }
 async function createRoomLive(){
   if(busy) return; busy=true;
   try{
     let room=null;
-    for(let i=0;i<6;i++){
-      const code=genCode(), secret=genSecret();
+    for(let i=0;i<6;i++){ const code=genCode(), secret=genSecret();
       const {data,error}=await sb.from('invest_rooms').insert({code,host_secret:secret,stage:'lobby',round:0}).select().single();
-      if(!error){ room=data; ME.hostSecret=secret; break; }
-    }
+      if(!error){ room=data; ME.hostSecret=secret; break; } }
     if(!room){ alert('방 생성에 실패했어요. 다시 시도해 주세요.'); busy=false; return; }
-    ME.role='host'; ME.mode='live'; ME.roomId=room.id; ME.roomCode=room.code;
-    ROOM=room; PLAYERS=[]; SUBS=[];
+    ME.role='host'; ME.mode='live'; ME.roomId=room.id; ME.roomCode=room.code; ROOM=room; PLAYERS=[]; SUBS=[];
     go('#/host'); lastSig=''; startPolling(); render();
   }catch(e){ alert('오류: '+e.message); }
   busy=false;
 }
-async function hostSetStage(stage, round){
-  const patch={stage}; if(round!=null) patch.round=round;
-  await sb.from('invest_rooms').update(patch).eq('id',ME.roomId);
-  ROOM={...ROOM,...patch}; render(); tickHost();
-}
+async function hostSetStage(stage, round){ const patch={stage}; if(round!=null) patch.round=round; await sb.from('invest_rooms').update(patch).eq('id',ME.roomId); ROOM={...ROOM,...patch}; render(); tickHost(); }
 async function hostStartGame(){ await hostSetStage('round',1); }
 async function hostReveal(){
   if(busy) return; busy=true;
@@ -443,26 +405,31 @@ async function hostReveal(){
     const byP={}; (subs||[]).forEach(s=>byP[s.player_id]=s);
     for(const p of (players||[])){
       const s=byP[p.id]; const alloc=s?(s.alloc||{}):{};
-      const {gain,invested}=computeGain(alloc,round);
-      const endBal=Number(p.balance)+gain;
-      if(s){ await sb.from('invest_submissions').update({gain,end_balance:endBal,invested}).eq('id',s.id); }
+      const {gain,spent}=computeGain(alloc,round); const endBal=Number(p.balance)+gain;
+      if(s){ await sb.from('invest_submissions').update({gain,end_balance:endBal,invested:spent}).eq('id',s.id); }
       else { await sb.from('invest_submissions').insert({room_id:ME.roomId,player_id:p.id,round,alloc:{},invested:0,gain:0,end_balance:endBal}); }
       await sb.from('invest_players').update({balance:endBal}).eq('id',p.id);
     }
-    await sb.from('invest_rooms').update({stage:'reveal'}).eq('id',ME.roomId);
-    ROOM={...ROOM,stage:'reveal'};
+    await sb.from('invest_rooms').update({stage:'reveal'}).eq('id',ME.roomId); ROOM={...ROOM,stage:'reveal'};
   }catch(e){ alert('집계 오류: '+e.message); }
   busy=false; lastSig=''; render(); tickHost();
 }
-async function hostNext(){
-  if(ROOM.round>=NROUNDS){ await hostSetStage('final'); }
-  else { await hostSetStage('round', ROOM.round+1); }
+async function hostNext(){ if(ROOM.round>=NROUNDS){ await hostSetStage('final'); } else { await hostSetStage('round', ROOM.round+1); } }
+async function hostRestart(){
+  if(busy) return; if(!confirm('같은 학생들과 새 게임을 시작할까요? (자산이 200만원으로 초기화됩니다)')) return;
+  busy=true;
+  try{
+    await sb.from('invest_submissions').delete().eq('room_id',ME.roomId);
+    const {data:ps}=await sb.from('invest_players').select('id').eq('room_id',ME.roomId);
+    for(const p of (ps||[])){ await sb.from('invest_players').update({balance:START}).eq('id',p.id); }
+    await sb.from('invest_rooms').update({stage:'lobby',round:0}).eq('id',ME.roomId); ROOM={...ROOM,stage:'lobby',round:0};
+  }catch(e){ alert('오류: '+e.message); }
+  busy=false; lastSig=''; render(); tickHost();
 }
 
 function renderHost(app){
   const right=`<span class="pill live">진행자</span><span class="pill">방 <b>${ME.roomCode}</b></span>`;
-  let body='';
-  const stage=ROOM?ROOM.stage:'lobby';
+  const stage=ROOM?ROOM.stage:'lobby'; let body='';
   if(stage==='lobby') body=hostLobby();
   else if(stage==='round') body=hostRound();
   else if(stage==='reveal') body=hostRevealView();
@@ -476,112 +443,107 @@ function hostLobby(){
     : `<div class="center muted mini" style="padding:20px 0">아직 입장한 학생이 없어요<span class="waitdots"></span></div>`;
   return `
   <div class="card center">
-    <div class="eyebrow">학생 입장 안내</div>
-    <h2 style="margin:6px 0 12px">방 코드로 입장하세요</h2>
-    <div class="qrbox">
-      <img src="${qr}" alt="입장 QR 코드">
-      <div style="min-width:180px">
-        <div class="bigcode">${ME.roomCode}</div>
+    <div class="eyebrow">학생 입장 안내</div><h2 style="margin:6px 0 12px">방 코드로 입장하세요</h2>
+    <div class="qrbox"><img src="${qr}" alt="입장 QR 코드">
+      <div style="min-width:180px"><div class="bigcode">${ME.roomCode}</div>
         <div class="tiny muted" style="margin-bottom:8px">QR을 찍거나, 아래 주소에서 코드를 입력</div>
-        <div class="joinurl">${esc(location.origin+location.pathname)}</div>
-      </div>
-    </div>
+        <div class="joinurl">${esc(location.origin+location.pathname)}</div></div></div>
     <div class="hr"></div>
-    <button class="btn btn-green" onclick="hostStartGame()" ${PLAYERS.length?'':'disabled'}>게임 시작 · 1라운드 열기${PLAYERS.length?' ('+PLAYERS.length+'명)':' — 학생 대기 중'}</button>
+    <button class="btn btn-green btn-lg" onclick="hostStartGame()" ${PLAYERS.length?'':'disabled'}>게임 시작 · 1라운드 열기${PLAYERS.length?' ('+PLAYERS.length+'명)':' — 학생 대기 중'}</button>
   </div>
-  <div class="card">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><h3>입장한 학생</h3><span class="pill">${PLAYERS.length}명</span></div>
-    <div class="plist">${plist}</div>
-  </div>`;
+  <div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><h3>입장한 학생</h3><span class="pill">${PLAYERS.length}명</span></div><div class="plist">${plist}</div></div>`;
 }
 function hostRound(){
-  const round=ROOM.round;
-  const done=SUBS.length, total=PLAYERS.length;
-  const byP={}; SUBS.forEach(s=>byP[s.player_id]=true);
+  const round=ROOM.round, done=SUBS.length, total=PLAYERS.length; const byP={}; SUBS.forEach(s=>byP[s.player_id]=true);
   const ranked=[...PLAYERS].sort((a,b)=>Number(b.balance)-Number(a.balance));
-  const rows=ranked.map((p,i)=>{
-    const submitted=byP[p.id];
-    return `<div class="prow"><span class="rk ${i<3?'top':''}">${i+1}</span>
-      <span class="pn">${esc(p.name)}</span>
-      <span class="pb num">${fmt(p.balance)}<span class="tiny muted">만원</span></span>
-      <span class="tagx ${submitted?'tag-done':'tag-wait'}">${submitted?'제출완료':'투자중'}</span></div>`;
-  }).join('');
+  const rows=ranked.map((p,i)=>`<div class="prow"><span class="rk ${i<3?'top':''}">${i+1}</span><span class="pn">${esc(p.name)}</span><span class="pb num">${won(p.balance)}</span><span class="tagx ${byP[p.id]?'tag-done':'tag-wait'}">${byP[p.id]?'제출완료':'투자중'}</span></div>`).join('');
   return `
   <div class="card">
     <div style="display:flex;justify-content:space-between;align-items:center">
       <div><div class="eyebrow">진행 중</div><h2 style="margin-top:3px">${round}라운드 · 투자 접수</h2></div>
-      <div class="center"><div class="num" style="font-size:26px;font-weight:800">${done}<span class="muted" style="font-size:16px">/${total}</span></div><div class="tiny muted">제출</div></div>
-    </div>
+      <div class="center"><div class="num" style="font-size:26px;font-weight:800">${done}<span class="muted" style="font-size:16px">/${total}</span></div><div class="tiny muted">제출</div></div></div>
     <div class="allocbar" style="margin-top:12px"><span style="width:${total?done/total*100:0}%;background:var(--green)"></span></div>
     <div class="btn-row" style="margin-top:12px">
       <button class="btn btn-line btn-sm" style="flex:none;width:auto;padding-left:16px;padding-right:16px" onclick="openNews(${round})">📰 뉴스 화면</button>
-      <button class="btn btn-green" id="revealBtn" onclick="hostReveal()">결과 공개 →</button>
-    </div>
+      <button class="btn btn-green" id="revealBtn" onclick="hostReveal()">결과 공개 →</button></div>
     <div class="tiny muted center" style="margin-top:8px">학생들이 충분히 제출하면 <b>결과 공개</b>를 누르세요. 안 낸 학생은 현금 보유로 처리돼요.</div>
   </div>
-  <div class="card">
-    <h3 style="margin-bottom:10px">실시간 현황 (자산순)</h3>
-    <div class="plist">${rows||'<div class="center muted mini" style="padding:16px">학생 없음</div>'}</div>
-  </div>`;
+  <div class="card"><h3 style="margin-bottom:10px">실시간 현황 (자산순)</h3><div class="plist">${rows||'<div class="center muted mini" style="padding:16px">학생 없음</div>'}</div></div>`;
 }
 function stockResultTable(round){
-  const r=RETURNS[round];
-  const sorted=[...COMPANIES].sort((a,b)=>r[b.k]-r[a.k]);
-  const rows=sorted.map(c=>{const v=r[c.k];return `<tr>
-    <td><div class="co-cell"><span class="dot" style="background:${c.color}">${c.name[0]}</span><div><div style="font-weight:700">${c.name}</div><div class="tiny muted">${c.sector}</div></div></div></td>
+  const r=RETURNS[round]; const sorted=[...COMPANIES].sort((a,b)=>r[b.k]-r[a.k]);
+  const rows=sorted.map(c=>{const v=r[c.k];const p=priceAt(c.k,round);const np=round10(p*(1+v/100));
+    return `<tr><td><div class="co-cell"><span class="dot" style="background:${c.color}">${c.name[0]}</span><div><div style="font-weight:700">${c.name}</div><div class="px2 num">${fmt(p)} → ${fmt(np)}원</div></div></div></td>
     <td class="r"><span class="pct ${cls(v)}"><span class="a">${arw(v)}</span>${sgn(v)}${v}%</span></td></tr>`;}).join('');
-  return `<table class="rtab"><thead><tr><th>기업</th><th class="r">${round}라운드 등락률</th></tr></thead><tbody>${rows}</tbody></table>`;
+  return `<table class="rtab"><thead><tr><th>기업 · 주가변동</th><th class="r">${round}R 등락</th></tr></thead><tbody>${rows}</tbody></table>`;
 }
 function hostRevealView(){
-  const round=ROOM.round;
-  const ranked=[...PLAYERS].sort((a,b)=>Number(b.balance)-Number(a.balance)).slice(0,8);
-  const rows=ranked.map((p,i)=>`<div class="prow"><span class="rk ${i<3?'top':''}">${i+1}</span><span class="pn">${esc(p.name)}</span><span class="pb num">${fmt(p.balance)}<span class="tiny muted">만원</span></span></div>`).join('');
+  const round=ROOM.round; const ranked=[...PLAYERS].sort((a,b)=>Number(b.balance)-Number(a.balance)).slice(0,8);
+  const rows=ranked.map((p,i)=>`<div class="prow"><span class="rk ${i<3?'top':''}">${i+1}</span><span class="pn">${esc(p.name)}</span><span class="pb num">${won(p.balance)}</span></div>`).join('');
   const last=round>=NROUNDS;
   return `
-  <div class="card">
-    <div class="eyebrow">${round}라운드 결과</div>
-    <h2 style="margin:4px 0 10px">📊 시장 마감 — 기업별 등락</h2>
+  <div class="card"><div class="eyebrow">${round}라운드 결과</div><h2 style="margin:4px 0 10px">📊 시장 마감 — 기업별 주가</h2>
     ${stockResultTable(round)}
-    <div class="callout"><div class="t">💡 왜 이렇게 움직였을까?</div>${NEWS[round].lesson}</div>
-  </div>
-  <div class="card">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><h3>현재 순위 TOP 8</h3><span class="pill">${PLAYERS.length}명</span></div>
-    <div class="plist">${rows}</div>
-    <button class="btn ${last?'btn-dark':'btn-green'}" style="margin-top:14px" onclick="hostNext()">${last?'최종 결과 발표 →':(round+1)+'라운드 열기 →'}</button>
-  </div>`;
+    <div class="callout"><div class="t">💡 왜 이렇게 움직였을까?</div>${NEWS[round].lesson}</div></div>
+  <div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><h3>현재 순위 TOP 8</h3><span class="pill">${PLAYERS.length}명</span></div><div class="plist">${rows}</div>
+    <button class="btn ${last?'btn-dark':'btn-green'} btn-lg" style="margin-top:14px" onclick="hostNext()">${last?'최종 결과 발표 →':(round+1)+'라운드 열기 →'}</button></div>`;
 }
 function hostFinal(){
   const ranked=[...PLAYERS].sort((a,b)=>Number(b.balance)-Number(a.balance));
   const avg = ranked.length? ranked.reduce((s,p)=>s+Number(p.balance),0)/ranked.length : START;
-  const best = bestStockOverall(); const perfect = perfectPlay();
-  const rows=ranked.map((p,i)=>{const ret=(Number(p.balance)/START-1)*100;return `<div class="prow"><span class="rk ${i<3?'top':''}">${i===0?'🏆':i+1}</span>
-    <span class="pn">${esc(p.name)}</span>
-    <span class="pb num">${fmt(p.balance)}<span class="tiny muted">만원</span> <span class="tiny ${cls(ret)}">${sgn(ret)}${ret.toFixed(1)}%</span></span></div>`;}).join('');
+  const best=bestStockOverall(); const perfect=perfectPlay();
+  const rows=ranked.map((p,i)=>{const ret=(Number(p.balance)/START-1)*100;return `<div class="prow"><span class="rk ${i<3?'top':''}">${i===0?'🏆':i+1}</span><span class="pn">${esc(p.name)}</span><span class="pb num">${won(p.balance)} <span class="tiny ${cls(ret)}">${sgn(ret)}${ret.toFixed(1)}%</span></span></div>`;}).join('');
   return `
-  <div class="card center">
-    <div class="eyebrow">최종 결과</div>
-    <h2 style="margin:6px 0 12px">🏁 우리 반 투자 랭킹</h2>
+  <div class="card center"><div class="eyebrow">최종 결과</div><h2 style="margin:6px 0 12px">🏁 우리 반 투자 랭킹</h2>
     <div class="stat-row">
       <div class="stat"><div class="l">참가 인원</div><div class="v num">${ranked.length}</div></div>
       <div class="stat"><div class="l">반 평균 수익률</div><div class="v num ${cls(avg-START)}">${sgn((avg/START-1)*100)}${((avg/START-1)*100).toFixed(1)}%</div></div>
-      <div class="stat"><div class="l">최고 수익 종목</div><div class="v" style="font-size:16px;color:${best.color}">${best.name}</div></div>
-    </div>
+      <div class="stat"><div class="l">최고 수익 종목</div><div class="v" style="font-size:15px;color:${best.color}">${best.name}</div></div></div>
+    <button class="btn btn-green btn-lg" onclick="downloadCSV()">📥 결과 CSV 내려받기 (엑셀에서 열림)</button>
+    <div class="tiny muted" style="margin-top:8px">모든 기록은 데이터베이스에도 자동 저장돼요. 언제든 다시 내려받을 수 있어요.</div>
   </div>
   <div class="card"><div class="plist">${rows||'<div class="center muted">참가자 없음</div>'}</div></div>
-  <div class="card">
-    <div class="callout"><div class="t">📌 마무리 코멘트</div>
-    이번 게임 최고의 주식은 <b style="color:${best.color}">${best.name}</b>(4라운드 누적 <b>${sgn(best.sum)}${best.sum}%</b>)였어요. 매 라운드 최선의 종목으로 완벽히 갈아탔다면 <b>${fmt(perfect)}만원</b>까지 가능했습니다. 뉴스를 읽고 흐름을 따라간 사람일수록 유리했다는 걸 확인해 보세요.</div>
-    <button class="btn btn-line" style="margin-top:12px" onclick="location.reload()">새 게임 시작</button>
-  </div>`;
+  <div class="card"><div class="callout"><div class="t">📌 마무리 코멘트</div>이번 게임 최고의 주식은 <b style="color:${best.color}">${best.name}</b>(4라운드 누적 <b>${sgn(best.sum)}${best.sum}%</b>)였어요. 매 라운드 최선의 종목으로 완벽히 갈아탔다면 <b>${won(perfect)}</b>까지 가능했습니다.</div>
+    <div class="btn-row" style="margin-top:12px">
+      <button class="btn btn-green" onclick="hostRestart()">🔁 같은 학생들과 다시 하기</button>
+      <button class="btn btn-line" style="flex:none;width:auto;padding-left:18px;padding-right:18px" onclick="location.reload()">🏠 새 방</button></div></div>`;
 }
-function bestStockOverall(){
-  let best=null;
-  COMPANIES.forEach(c=>{const sum=RETURNS[1][c.k]+RETURNS[2][c.k]+RETURNS[3][c.k]+RETURNS[4][c.k]; if(!best||sum>best.sum) best={name:c.name,color:c.color,sum};});
-  return best;
-}
+function bestStockOverall(){ let best=null; COMPANIES.forEach(c=>{const sum=RETURNS[1][c.k]+RETURNS[2][c.k]+RETURNS[3][c.k]+RETURNS[4][c.k]; if(!best||sum>best.sum) best={name:c.name,color:c.color,sum};}); return best; }
 function perfectPlay(){ let b=START; for(let rd=1;rd<=NROUNDS;rd++){ const best=Math.max(...COMPANIES.map(c=>RETURNS[rd][c.k])); b=b*(1+best/100);} return Math.round(b); }
 
-/* news modal (host projection) */
+/* CSV export (host) */
+function picksStr(alloc){ return COMPANIES.filter(c=>(alloc&&alloc[c.k]||0)>0).map(c=>`${c.name} ${alloc[c.k]}주`).join(' / '); }
+function csvCell(v){ v=String(v==null?'':v); return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v; }
+function tsStr(){ const d=new Date(),p=n=>String(n).padStart(2,'0'); return `${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}_${p(d.getHours())}${p(d.getMinutes())}`; }
+function saveCSV(rows, name){
+  const csv='\ufeff'+rows.map(r=>r.map(csvCell).join(',')).join('\r\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8'}); const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download=name; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+}
+async function downloadCSV(){
+  let players, subs;
+  if(ME.mode==='demo'){ players=PLAYERS.map(p=>({id:p.id,name:p.name,balance:p.balance})); subs=demoHistory.slice(); }
+  else {
+    const r1=await sb.from('invest_players').select('*').eq('room_id',ME.roomId); players=r1.data||[];
+    const r2=await sb.from('invest_submissions').select('*').eq('room_id',ME.roomId); subs=r2.data||[];
+  }
+  const ranked=[...players].sort((a,b)=>Number(b.balance)-Number(a.balance));
+  const byPR={}; subs.forEach(s=>{ byPR[s.player_id+'-'+s.round]=s; });
+  const head=['순위','이름','최종자산(원)','총수익률(%)'];
+  for(let rd=1;rd<=NROUNDS;rd++) head.push(`R${rd}손익`,`R${rd}자산`);
+  for(let rd=1;rd<=NROUNDS;rd++) head.push(`R${rd}매수내역`);
+  const rows=[head];
+  ranked.forEach((p,i)=>{
+    const ret=((Number(p.balance)/START-1)*100).toFixed(1);
+    const row=[i+1,p.name,Math.round(p.balance),ret];
+    for(let rd=1;rd<=NROUNDS;rd++){ const s=byPR[p.id+'-'+rd]; row.push(s?Math.round(s.gain):'', s?Math.round(s.end_balance):''); }
+    for(let rd=1;rd<=NROUNDS;rd++){ const s=byPR[p.id+'-'+rd]; row.push(s?picksStr(s.alloc):''); }
+    rows.push(row);
+  });
+  saveCSV(rows, `코스피인더클래스_결과_${tsStr()}.csv`);
+}
+
+/* news modal */
 function openNews(round){
   const items=NEWS[round].items.map(n=>`<div class="news-item"><span class="sec">${n.sec}</span><div class="hd">${n.hd}</div><div class="bd">${n.bd}</div></div>`).join('');
   showModal(`<div class="paper-head"><div class="k">KOSPI IN THE CLASS</div><div class="t">코스피일보 · ${round}라운드</div></div>${items}`);
@@ -593,13 +555,10 @@ function showModal(html){
 }
 
 /* ===================== STUDENT ===================== */
-function renderJoinFromHash(){ ME.role=null; render(); }
 function renderStudent(app){
-  // join screen
   if(!ME.playerId){ return renderJoin(app); }
-  const right=`<span class="pill live">${esc(ME.name)}</span><div class="tb-bal"><div class="l">보유자산</div><div class="v num">${fmt(myBalance())}<span class="tiny">만원</span></div></div>`;
-  const stage=ROOM?ROOM.stage:'lobby';
-  let body='';
+  const right=`<span class="pill live">${esc(ME.name)}</span><div class="tb-bal"><div class="l">보유자산</div><div class="v num">${won(myBalance())}</div></div>`;
+  const stage=ROOM?ROOM.stage:'lobby'; let body='';
   if(stage==='lobby') body=stuLobby();
   else if(stage==='round') body = mySub? stuWaiting() : stuRound();
   else if(stage==='reveal') body=stuReveal();
@@ -610,26 +569,19 @@ function renderStudent(app){
 function renderJoin(app){
   let code=''; if(location.hash.startsWith('#/play')){ const m=location.hash.match(/code=([A-Za-z0-9]+)/); if(m) code=m[1].toUpperCase(); }
   app.innerHTML = topbar(`<span class="pill">학생</span>`)+`
-  <div class="wrap">
-    <div style="padding:18px 4px 14px"><div class="eyebrow">학생 참여</div><h1 style="margin-top:6px">방에 입장하기</h1></div>
-    <div class="card">
-      <label class="label">방 코드</label>
+  <div class="wrap"><div style="padding:18px 4px 14px"><div class="eyebrow">학생 참여</div><h1 style="margin-top:6px">방에 입장하기</h1></div>
+    <div class="card"><label class="label">방 코드</label>
       <input class="field code-field" id="joinCode" maxlength="6" placeholder="ABCDE" value="${code}" autocomplete="off" autocapitalize="characters">
-      <div class="spacer"></div>
-      <label class="label">이름 (닉네임)</label>
-      <input class="field" id="joinName" maxlength="14" placeholder="예) 3반 정하민" autocomplete="off">
-      <div class="spacer"></div>
-      <button class="btn btn-green" onclick="doJoin()">입장하기</button>
-      ${LIVE_OK?'':'<div class="notice" style="margin-top:12px">⚠️ 온라인 서버에 연결되지 않았어요. 잠시 후 다시 시도하거나 데모를 이용하세요.</div>'}
-    </div>
-    <div class="center" style="margin-top:14px"><a class="link" onclick="ME.role=null;go('#/')">← 처음으로</a></div>
-  </div>`;
+      <div class="spacer"></div><label class="label">이름 (닉네임)</label>
+      <input class="field" id="joinName" maxlength="14" placeholder="예) 3반 정하민" autocomplete="off"><div class="spacer"></div>
+      <button class="btn btn-green btn-lg" onclick="doJoin()">입장하기</button>
+      ${LIVE_OK?'':'<div class="notice" style="margin-top:12px">⚠️ 온라인 서버에 연결되지 않았어요.</div>'}</div>
+    <div class="center" style="margin-top:14px"><a class="link" onclick="ME.role=null;go('#/')">← 처음으로</a></div></div>`;
   ME.role='student';
   const c=el('joinCode'); if(c) c.addEventListener('input',()=>{c.value=c.value.toUpperCase();});
 }
 async function doJoin(){
-  const code=(el('joinCode').value||'').trim().toUpperCase();
-  const name=(el('joinName').value||'').trim();
+  const code=(el('joinCode').value||'').trim().toUpperCase(); const name=(el('joinName').value||'').trim();
   if(code.length<4){ alert('방 코드를 확인해 주세요.'); return; }
   if(!name){ alert('이름을 입력해 주세요.'); return; }
   if(!LIVE_OK){ alert('온라인 서버에 연결되어 있지 않아요.'); return; }
@@ -647,155 +599,145 @@ async function doJoin(){
   busy=false;
 }
 function stuLobby(){
-  return `<div class="card center">
-    <div class="badge-lg" style="background:var(--green)">✓</div>
-    <h2 style="margin:14px 0 6px">입장 완료!</h2>
-    <p class="muted mini">진행자가 게임을 시작하면 자동으로 넘어가요.<span class="waitdots"></span></p>
-    <div class="hr"></div>
-    <div style="display:flex;justify-content:space-around">
+  return `<div class="card center"><div class="badge-lg" style="background:var(--green)">✓</div>
+    <h2 style="margin:14px 0 6px">입장 완료!</h2><p class="muted mini">진행자가 게임을 시작하면 자동으로 넘어가요.<span class="waitdots"></span></p>
+    <div class="hr"></div><div style="display:flex;justify-content:space-around">
       <div><div class="tiny muted">이름</div><div style="font-weight:800">${esc(ME.name)}</div></div>
       <div><div class="tiny muted">방 코드</div><div style="font-weight:800">${ME.roomCode}</div></div>
-      <div><div class="tiny muted">시작 자산</div><div style="font-weight:800" class="num">${fmt(START)}만원</div></div>
-    </div>
-  </div>
-  <div class="notice" style="margin-top:12px">💡 곧 <b>코스피일보</b> 뉴스가 나와요. 기사를 읽고 오를 것 같은 기업에 투자하세요. 투자 안 한 돈은 현금(수익 0%)으로 안전하게 보관돼요.</div>`;
+      <div><div class="tiny muted">시작 자산</div><div style="font-weight:800" class="num">${won(START)}</div></div></div></div>
+  <div class="notice" style="margin-top:12px">💡 곧 <b>코스피일보</b> 뉴스가 나와요. 기사를 읽고 오를 것 같은 주식을 <b>주수나 금액</b>으로 매수하세요. 안 산 돈은 현금(변동 없음)으로 안전하게 보관돼요.</div>`;
 }
 function stuRound(){
   const round=ROOM.round;
   if(allocInitRound!==round){ localAlloc={}; allocInitRound=round; studentTab='news'; }
-  const bal=myBalance();
   const newsHtml=NEWS[round].items.map(n=>`<div class="news-item"><span class="sec">${n.sec}</span><div class="hd">${n.hd}</div><div class="bd">${n.bd}</div></div>`).join('');
   const coHtml=COMPANIES.map(c=>{
-    const v=localAlloc[c.k]||0;
+    const price=priceAt(c.k,round); const q=localAlloc[c.k]||0;
+    const val = inputMode==='shares' ? (q||'') : (q?fmt(Math.round(q*price/10000)):'');
+    const unit = inputMode==='shares' ? '주' : '만원';
     return `<div class="co" id="co-${c.k}">
       <div class="co-top">
         <span class="badge" style="background:${c.color}">${c.name[0]}</span>
-        <div class="meta"><div class="nm">${c.name}</div><div class="tag">${c.sector} · ${c.biz}</div></div>
-        <div class="inbox"><input class="amt num" id="amt-${c.k}" type="number" inputmode="numeric" min="0" step="10" value="${v||''}" placeholder="0" data-k="${c.k}"><span class="won">만원</span></div>
+        <div class="meta"><div class="nm">${c.name}</div><div class="tag">${c.sector}</div></div>
+        <div class="px"><div class="p num">${fmt(price)}<span style="font-size:11px;font-weight:600">원</span></div><div class="pl">현재가</div></div>
+      </div>
+      <div class="co-buy">
+        <button class="st" data-minus="${c.k}">−</button>
+        <input class="amt num" id="amt-${c.k}" type="number" inputmode="numeric" min="0" step="1" value="${val}" placeholder="0" data-k="${c.k}">
+        <span class="unit">${unit}</span>
+        <button class="st" data-plus="${c.k}">+</button>
       </div>
       <div class="co-tools">
-        <button class="chip" data-add="${c.k}" data-v="50">+50</button>
-        <button class="chip" data-add="${c.k}" data-v="100">+100</button>
-        <button class="chip" data-add="${c.k}" data-v="200">+200</button>
-        <button class="chip" data-max="${c.k}">최대</button>
+        <button class="chip" data-max="${c.k}">최대 매수</button>
         <button class="chip info" data-info="${c.k}">ⓘ 기업정보</button>
       </div>
+      <div class="co-order" id="ord-${c.k}"></div>
       <div class="co-info" id="info-${c.k}"><b>주력산업</b> · ${c.biz}<ul>${c.strat.map(s=>`<li>${s}</li>`).join('')}</ul></div>
     </div>`;
   }).join('');
   return `
-  <div style="padding:6px 2px 12px"><div class="eyebrow">${round}라운드 / ${NROUNDS}</div><h2 style="margin-top:3px">뉴스를 읽고 투자하세요</h2></div>
+  <div style="padding:6px 2px 12px"><div class="eyebrow">${round}라운드 / ${NROUNDS}</div><h2 style="margin-top:3px">뉴스를 읽고 매수하세요</h2></div>
   <div class="seg">
     <button id="tab-news" class="${studentTab==='news'?'on':''}" onclick="setTab('news')">📰 뉴스</button>
-    <button id="tab-invest" class="${studentTab==='invest'?'on':''}" onclick="setTab('invest')">💰 투자</button>
+    <button id="tab-invest" class="${studentTab==='invest'?'on':''}" onclick="setTab('invest')">💰 매수</button>
   </div>
   <div id="pane-news" class="card" style="${studentTab==='news'?'':'display:none'}">
     <div class="paper-head"><div class="k">KOSPI IN THE CLASS</div><div class="t">코스피일보 · ${round}라운드</div></div>
     ${newsHtml}
-    <button class="btn btn-green btn-sm" style="margin-top:14px" onclick="setTab('invest')">투자하러 가기 →</button>
+    <button class="btn btn-green btn-sm" style="margin-top:14px" onclick="setTab('invest')">매수하러 가기 →</button>
   </div>
   <div id="pane-invest" style="${studentTab==='invest'?'':'display:none'}">
+    <div class="seg mini2"><button id="im-shares" class="${inputMode==='shares'?'on':''}" onclick="setMode('shares')">주수로 입력</button><button id="im-amount" class="${inputMode==='amount'?'on':''}" onclick="setMode('amount')">금액으로 입력</button></div>
     ${coHtml}
-    <div style="height:8px"></div>
+    <div style="height:40px"></div>
   </div>
   <div class="footer"><div class="in">
     <div class="allocbar" id="fbar"></div>
-    <div class="row"><span class="muted">투자 합계</span><span class="v num" id="fInvest">0<span class="tiny">만원</span></span></div>
-    <div class="row"><span class="muted">남은 현금</span><span class="v cash num" id="fCash">${fmt(bal)}<span class="tiny">만원</span></span></div>
-    <button class="btn btn-green" id="submitBtn" onclick="stuSubmit()">투자 확정하기</button>
+    <div class="frow"><span>주문 <b id="fInvest">0원</b></span><span>남은 현금 <b class="cash" id="fCash">${won(myBalance())}</b></span></div>
+    <button class="btn btn-green btn-lg" id="submitBtn" onclick="stuSubmit()">이 종목들로 투자 확정 →</button>
   </div></div>`;
 }
 function setTab(t){ studentTab=t;
-  const pn=el('pane-news'), pi=el('pane-invest'); if(pn)pn.style.display=t==='news'?'':'none'; if(pi)pi.style.display=t==='invest'?'':'none';
-  const tn=el('tab-news'), ti=el('tab-invest'); if(tn)tn.classList.toggle('on',t==='news'); if(ti)ti.classList.toggle('on',t==='invest');
+  const pn=el('pane-news'),pi=el('pane-invest'); if(pn)pn.style.display=t==='news'?'':'none'; if(pi)pi.style.display=t==='invest'?'':'none';
+  const tn=el('tab-news'),ti=el('tab-invest'); if(tn)tn.classList.toggle('on',t==='news'); if(ti)ti.classList.toggle('on',t==='invest');
 }
+function setMode(m){ inputMode=m; render(); setTab('invest'); }
 function bindAlloc(){
   document.querySelectorAll('.amt').forEach(inp=>{
-    inp.addEventListener('input',()=>{ const k=inp.dataset.k; let v=parseInt(inp.value,10); if(isNaN(v)||v<0)v=0; localAlloc[k]=v; clampAlloc(k,inp); updAllocUI(); });
+    inp.addEventListener('input',()=>{ const k=inp.dataset.k; setQtyFromInput(k, inp.value); afterQty(k, inp); });
   });
-  document.querySelectorAll('[data-add]').forEach(b=>b.addEventListener('click',()=>{ const k=b.dataset.add; localAlloc[k]=(localAlloc[k]||0)+parseInt(b.dataset.v,10); const inp=el('amt-'+k); clampAlloc(k,inp); inp.value=localAlloc[k]||''; updAllocUI(); }));
-  document.querySelectorAll('[data-max]').forEach(b=>b.addEventListener('click',()=>{ const k=b.dataset.max; const rem=remaining()+ (localAlloc[k]||0); localAlloc[k]=Math.max(0,rem); const inp=el('amt-'+k); inp.value=localAlloc[k]||''; updAllocUI(); }));
+  document.querySelectorAll('[data-plus]').forEach(b=>b.addEventListener('click',()=>{ const k=b.dataset.plus; localAlloc[k]=(localAlloc[k]||0)+1; clampQty(k); syncInput(k); afterQty(k, el('amt-'+k)); }));
+  document.querySelectorAll('[data-minus]').forEach(b=>b.addEventListener('click',()=>{ const k=b.dataset.minus; localAlloc[k]=Math.max(0,(localAlloc[k]||0)-1); syncInput(k); afterQty(k, el('amt-'+k)); }));
+  document.querySelectorAll('[data-max]').forEach(b=>b.addEventListener('click',()=>{ const k=b.dataset.max; const price=priceAt(k,ROOM.round); const remain=myBalance()-(totalSpent()-(localAlloc[k]||0)*price); localAlloc[k]=Math.max(0,Math.floor(remain/price)); syncInput(k); afterQty(k, el('amt-'+k)); }));
   document.querySelectorAll('[data-info]').forEach(b=>b.addEventListener('click',()=>{ const info=el('info-'+b.dataset.info); if(info) info.classList.toggle('show'); }));
-  updAllocUI();
+  COMPANIES.forEach(c=>updOrder(c.k)); updFooter();
 }
-function invested(){ return COMPANIES.reduce((s,c)=>s+(localAlloc[c.k]||0),0); }
-function remaining(){ return myBalance()-invested(); }
-function clampAlloc(k,inp){ // ensure total doesn't exceed balance
-  let total=invested();
-  if(total>myBalance()){ const others=total-(localAlloc[k]||0); localAlloc[k]=Math.max(0,myBalance()-others); if(inp) inp.value=localAlloc[k]||''; }
+function setQtyFromInput(k, raw){
+  const price=priceAt(k,ROOM.round); let v=parseInt(raw,10); if(isNaN(v)||v<0)v=0;
+  localAlloc[k] = inputMode==='shares' ? v : Math.floor(v*10000/price);
+  clampQty(k);
 }
-function updAllocUI(){
-  const inv=invested(), cash=myBalance()-inv;
-  const fi=el('fInvest'), fc=el('fCash'); if(fi) fi.innerHTML=fmt(inv)+'<span class="tiny">만원</span>'; if(fc) fc.innerHTML=fmt(cash)+'<span class="tiny">만원</span>';
-  const bar=el('fbar'); if(bar){ bar.innerHTML=''; COMPANIES.forEach(c=>{const w=myBalance()?(localAlloc[c.k]||0)/myBalance()*100:0; if(w>0){const s=document.createElement('span');s.style.width=w+'%';s.style.background=c.color;bar.appendChild(s);}}); }
+function clampQty(k){ const price=priceAt(k,ROOM.round); const spent=totalSpent(); if(spent>myBalance()){ const others=spent-(localAlloc[k]||0)*price; localAlloc[k]=Math.max(0,Math.floor((myBalance()-others)/price)); } }
+function syncInput(k){ const inp=el('amt-'+k); if(!inp) return; const price=priceAt(k,ROOM.round); const q=localAlloc[k]||0; inp.value = inputMode==='shares' ? (q||'') : (q?fmt(Math.round(q*price/10000)):''); }
+function afterQty(k, inp){ if(inp && inputMode==='shares'){ const q=localAlloc[k]||0; if(String(q)!==String(inp.value) && !(q===0&&inp.value==='')) inp.value=q||''; } updOrder(k); updFooter(); }
+function totalSpent(){ return COMPANIES.reduce((s,c)=>s+(localAlloc[c.k]||0)*priceAt(c.k,ROOM.round),0); }
+function updOrder(k){ const o=el('ord-'+k); if(!o) return; const price=priceAt(k,ROOM.round); const q=localAlloc[k]||0; o.innerHTML = q>0? `${q}주 × ${fmt(price)}원 = 주문 <b>${won(q*price)}</b>` : ''; }
+function updFooter(){
+  const inv=totalSpent(), cash=myBalance()-inv;
+  const fi=el('fInvest'), fc=el('fCash'); if(fi) fi.textContent=won(inv); if(fc) fc.textContent=won(cash);
+  const bar=el('fbar'); if(bar){ bar.innerHTML=''; COMPANIES.forEach(c=>{const w=myBalance()?(localAlloc[c.k]||0)*priceAt(c.k,ROOM.round)/myBalance()*100:0; if(w>0){const s=document.createElement('span');s.style.width=w+'%';s.style.background=c.color;bar.appendChild(s);}}); }
   COMPANIES.forEach(c=>{ const box=el('co-'+c.k); if(box) box.classList.toggle('active',(localAlloc[c.k]||0)>0); });
 }
 async function stuSubmit(){
-  if(busy) return;
-  const inv=invested();
+  if(busy) return; const spent=totalSpent();
   const btn=el('submitBtn'); if(btn){btn.disabled=true;btn.textContent='제출 중…';}
   busy=true;
   try{
-    await sb.from('invest_submissions').upsert({room_id:ME.roomId,player_id:ME.playerId,round:ROOM.round,alloc:localAlloc,invested:inv,gain:0,end_balance:0},{onConflict:'player_id,round'});
-    mySub={round:ROOM.round,alloc:localAlloc,invested:inv};
-  }catch(e){ alert('제출 오류: '+e.message); if(btn){btn.disabled=false;btn.textContent='투자 확정하기';} busy=false; return; }
+    await sb.from('invest_submissions').upsert({room_id:ME.roomId,player_id:ME.playerId,round:ROOM.round,alloc:localAlloc,invested:spent,gain:0,end_balance:0},{onConflict:'player_id,round'});
+    mySub={round:ROOM.round,alloc:localAlloc,invested:spent};
+  }catch(e){ alert('제출 오류: '+e.message); if(btn){btn.disabled=false;btn.textContent='이 종목들로 투자 확정 →';} busy=false; return; }
   busy=false; lastSig=''; render();
 }
 function stuWaiting(){
   const round=ROOM.round; const alloc=(mySub&&mySub.alloc)||{};
   const picks=COMPANIES.filter(c=>(alloc[c.k]||0)>0);
-  const inv=picks.reduce((s,c)=>s+(alloc[c.k]||0),0);
-  const list = picks.length? picks.map(c=>`<div class="res-line"><span class="l"><span class="dot" style="background:${c.color}">${c.name[0]}</span><b>${c.name}</b></span><span class="rq num">${fmt(alloc[c.k])}만원</span></div>`).join('')
+  const inv=picks.reduce((s,c)=>s+(alloc[c.k]||0)*priceAt(c.k,round),0);
+  const list = picks.length? picks.map(c=>`<div class="res-line"><span class="l"><span class="dot" style="background:${c.color}">${c.name[0]}</span><div><b>${c.name}</b><div class="tiny muted num">${alloc[c.k]}주 · ${won(priceAt(c.k,round))}</div></div></span><span class="rq num">${won((alloc[c.k]||0)*priceAt(c.k,round))}</span></div>`).join('')
     : `<div class="center muted mini" style="padding:14px">현금 100% 보유를 선택했어요</div>`;
-  return `<div class="card center">
-    <div class="badge-lg" style="background:var(--green)">✓</div>
-    <h2 style="margin:14px 0 4px">${round}라운드 제출 완료!</h2>
-    <p class="muted mini">다른 친구들을 기다리는 중이에요.<span class="waitdots"></span></p>
-  </div>
-  <div class="card">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><h3>내 포트폴리오</h3><span class="tiny muted">투자 ${fmt(inv)}만원 · 현금 ${fmt(myBalance()-inv)}만원</span></div>
-    ${list}
-  </div>`;
+  return `<div class="card center"><div class="badge-lg" style="background:var(--green)">✓</div>
+    <h2 style="margin:14px 0 4px">${round}라운드 제출 완료!</h2><p class="muted mini">다른 친구들을 기다리는 중이에요.<span class="waitdots"></span></p></div>
+  <div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><h3>내 주문</h3><span class="tiny muted">매수 ${won(inv)} · 현금 ${won(myBalance()-inv)}</span></div>${list}</div>`;
 }
 function stuReveal(){
-  const round=ROOM.round; const alloc=(mySub&&mySub.alloc)||{};
-  const {gain,per}=computeGain(alloc,round);
-  const startBal=myBalance()-gain; // current balance already includes this round's gain
-  const invested=COMPANIES.reduce((s,c)=>s+(per[c.k].amt),0);
-  const picks=COMPANIES.filter(c=>per[c.k].amt>0).sort((a,b)=>per[b.k].ret-per[a.k].ret);
-  const list=picks.length? picks.map(c=>{const p=per[c.k];return `<div class="res-line"><span class="l"><span class="dot" style="background:${c.color}">${c.name[0]}</span><div><div style="font-weight:700">${c.name}</div><div class="tiny muted num">${fmt(p.amt)}만원 투자</div></div></span>
-    <span class="rq"><div class="pct ${cls(p.ret)}"><span class="a">${arw(p.ret)}</span>${sgn(p.ret)}${p.ret}%</div><div class="tiny num ${cls(p.gain)}">${sgn(p.gain)}${fmt(p.gain)}만원</div></span></div>`;}).join('')
+  const round=ROOM.round; const alloc=(mySub&&mySub.alloc)||{}; const {gain,per}=computeGain(alloc,round);
+  const picks=COMPANIES.filter(c=>per[c.k].qty>0).sort((a,b)=>per[b.k].ret-per[a.k].ret);
+  const list=picks.length? picks.map(c=>{const p=per[c.k];return `<div class="res-line"><span class="l"><span class="dot" style="background:${c.color}">${c.name[0]}</span><div><div style="font-weight:700">${c.name}</div><div class="tiny muted num">${p.qty}주 · ${fmt(p.price)} → ${fmt(p.newP)}원</div></div></span>
+    <span class="rq"><div class="pct ${cls(p.ret)}"><span class="a">${arw(p.ret)}</span>${sgn(p.ret)}${p.ret}%</div><div class="tiny num ${cls(p.gain)}">${sgn(p.gain)}${won(p.gain)}</div></span></div>`;}).join('')
     : `<div class="center muted mini" style="padding:14px">이번 라운드는 현금만 보유했어요 (변동 없음)</div>`;
-  return `<div class="card">
-    <div class="bigres"><div class="l">${round}라운드 손익</div>
-      <div class="v num ${cls(gain)}">${sgn(gain)}${fmt(gain)}<span style="font-size:.4em;color:var(--sub)"> 만원</span></div>
-      <div class="d ${cls(gain)}">${arw(gain)} 보유자산 ${fmt(myBalance())}만원</div></div>
-    <div class="hr"></div>
-    ${list}
+  return `<div class="card"><div class="bigres"><div class="l">${round}라운드 손익</div>
+      <div class="v num ${cls(gain)}">${sgn(gain)}${won(gain)}</div><div class="d ${cls(gain)}">${arw(gain)} 보유자산 ${won(myBalance())}</div></div>
+    <div class="hr"></div>${list}
     <div class="callout"><div class="t">💡 이번 라운드 해설</div>${NEWS[round].lesson}</div>
-    <p class="center muted mini" style="margin-top:12px">진행자가 다음 라운드를 열 때까지 기다려요.<span class="waitdots"></span></p>
-  </div>`;
+    <p class="center muted mini" style="margin-top:12px">진행자가 다음 라운드를 열 때까지 기다려요.<span class="waitdots"></span></p></div>`;
 }
 function stuFinal(){
   const bal=myBalance(); const ret=(bal/START-1)*100;
-  let rank=1, n=ALLPLAYERS.length||1;
-  if(ALLPLAYERS.length){ const sorted=[...ALLPLAYERS].sort((a,b)=>Number(b.balance)-Number(a.balance)); rank=sorted.findIndex(p=>p.id===ME.playerId)+1; }
-  const g=grade(ret);
+  let rank=1,n=ALLPLAYERS.length||1;
+  if(ALLPLAYERS.length){ const s=[...ALLPLAYERS].sort((a,b)=>Number(b.balance)-Number(a.balance)); rank=s.findIndex(p=>p.id===ME.playerId)+1; }
+  const msg=finalMsg(ret);
   return `<div class="card center">
-    <span class="tagx" style="background:${g.bg};color:${g.c};font-size:12px;padding:6px 14px">${g.label}</span>
     <div class="bigres"><div class="l">${esc(ME.name)} 님의 최종 자산</div>
-      <div class="v num ${cls(bal-START)}">${fmt(bal)}<span style="font-size:.4em;color:var(--sub)"> 만원</span></div>
+      <div class="v num ${cls(bal-START)}">${won(bal)}</div>
       <div class="d ${cls(bal-START)}">${sgn(ret)}${ret.toFixed(1)}% <span class="muted" style="font-weight:600">· 전체 ${rank}위 / ${n}명</span></div></div>
-    <div class="callout"><div class="t">📌 총평</div>${g.msg}</div>
-    <div class="notice" style="margin-top:12px">이번 게임 최고의 주식은 <b>${bestStockOverall().name}</b>였어요. 어떤 뉴스에서 어떤 선택을 했는지 되돌아보면 다음엔 더 잘할 수 있어요!</div>
-  </div>`;
+    <div class="callout"><div class="t">📌 총평</div>${msg}</div>
+    <div class="notice" style="margin-top:12px">이번 게임 최고의 주식은 <b>${bestStockOverall().name}</b>였어요. 어떤 뉴스에서 어떤 선택을 했는지 되돌아보면 다음엔 더 잘할 수 있어요!</div></div>`;
 }
-function grade(ret){
-  if(ret>=50) return {label:'S · 투자 고수',c:'var(--up)',bg:'var(--up-bg)',msg:'뉴스와 시장의 관계를 정확히 읽었어요. 국면마다 유리한 기업으로 잘 갈아탄 결과입니다.'};
-  if(ret>=20) return {label:'A · 우수',c:'var(--up)',bg:'var(--up-bg)',msg:'분산과 타이밍 감각이 훌륭해요. 위험을 관리하면서 기회도 잘 잡았습니다.'};
-  if(ret>=0)  return {label:'B · 선방',c:'var(--gold)',bg:'#fff5e0',msg:'원금을 지켰어요. 위험 관리는 좋았지만, 놓친 기회가 있었는지 라운드를 되짚어봐요.'};
-  if(ret>=-15)return {label:'C · 경험치 획득',c:'var(--down)',bg:'var(--down-bg)',msg:'아쉽지만 좋은 배움! 어떤 뉴스에서 잘못된 방향에 투자했는지 살펴보세요.'};
-  return {label:'D · 복습 필요',c:'var(--down)',bg:'var(--down-bg)',msg:'쓴 경험이 큰 공부예요. 금리·경기·산업 뉴스와 주가의 관계를 다시 정리해봐요.'};
+function finalMsg(ret){
+  if(ret>=50) return '뉴스와 시장의 관계를 정확히 읽었어요. 국면마다 유리한 기업으로 잘 갈아탄 결과입니다.';
+  if(ret>=20) return '분산과 타이밍 감각이 훌륭해요. 위험을 관리하면서 기회도 잘 잡았습니다.';
+  if(ret>=0)  return '원금을 지켰어요. 위험 관리는 좋았지만, 놓친 기회가 있었는지 라운드를 되짚어봐요.';
+  if(ret>=-15)return '아쉽지만 좋은 배움! 어떤 뉴스에서 잘못된 방향에 투자했는지 살펴보세요.';
+  return '쓴 경험이 큰 공부예요. 금리·경기·산업 뉴스와 주가의 관계를 다시 정리해봐요.';
 }
 
 /* ===================== DEMO (offline) ===================== */
@@ -804,24 +746,25 @@ function demoStart(){
   ME.role='host'; ME.mode='demo'; ME.roomCode='DEMO-01'; ME.hostSecret='demo';
   ROOM={stage:'lobby',round:0};
   PLAYERS = BOT_NAMES.slice(0,8).map((n,i)=>({id:'b'+i,name:n,balance:START,is_bot:true,savvy:i<3}));
-  SUBS=[]; stopPolling(); lastSig=''; render();
+  SUBS=[]; demoHistory=[]; stopPolling(); lastSig=''; render();
 }
 function demoBotAlloc(bot,round){
   const r=RETURNS[round]; let picks;
   if(bot.savvy){ picks=COMPANIES.filter(c=>r[c.k]>4).sort((a,b)=>r[b.k]-r[a.k]).slice(0,3); if(!picks.length) picks=[COMPANIES[Math.floor(Math.random()*COMPANIES.length)]]; }
   else { const sh=[...COMPANIES].sort(()=>Math.random()-0.5); picks=sh.slice(0,2+Math.floor(Math.random()*3)); }
-  const pool=Number(bot.balance)*(0.55+Math.random()*0.45); const per=Math.max(10,Math.floor(pool/picks.length/10)*10);
-  const a={}; picks.forEach(c=>a[c.k]=per); return a;
+  const pool=Number(bot.balance)*(0.55+Math.random()*0.45); const spendPer=pool/picks.length;
+  const a={}; picks.forEach(c=>{ const price=priceAt(c.k,round); a[c.k]=Math.max(1,Math.floor(spendPer/price)); }); return a;
 }
-function demoStartGame(){ ROOM.stage='round'; ROOM.round=1; demoInvestRound(1); lastSig=''; render(); }
-function demoInvestRound(round){ SUBS = PLAYERS.map(b=>{const alloc=demoBotAlloc(b,round);const {invested}=computeGain(alloc,round);return {player_id:b.id,round,alloc,invested};}); }
+function demoStartGame(){ ROOM.stage='round'; ROOM.round=1; demoInvest(1); lastSig=''; render(); }
+function demoInvest(round){ SUBS = PLAYERS.map(b=>{const alloc=demoBotAlloc(b,round);const {spent}=computeGain(alloc,round);return {player_id:b.id,round,alloc,invested:spent};}); }
 function demoReveal(){
   const round=ROOM.round; const byP={}; SUBS.forEach(s=>byP[s.player_id]=s);
-  PLAYERS.forEach(p=>{const s=byP[p.id];const {gain}=computeGain(s?s.alloc:{},round);p.balance=Number(p.balance)+gain; if(s){s.gain=gain;s.end_balance=p.balance;}});
+  PLAYERS.forEach(p=>{const s=byP[p.id];const {gain}=computeGain(s?s.alloc:{},round);p.balance=Number(p.balance)+gain;
+    demoHistory.push({player_id:p.id,round,alloc:s?s.alloc:{},gain,end_balance:p.balance});});
   ROOM.stage='reveal'; lastSig=''; render();
 }
-function demoNext(){ if(ROOM.round>=NROUNDS){ ROOM.stage='final'; } else { ROOM.round++; ROOM.stage='round'; demoInvestRound(ROOM.round); } lastSig=''; render(); }
-function demoExit(){ location.reload(); }
+function demoNext(){ if(ROOM.round>=NROUNDS){ ROOM.stage='final'; } else { ROOM.round++; ROOM.stage='round'; demoInvest(ROOM.round); } lastSig=''; render(); }
+function demoRestart(){ PLAYERS.forEach(p=>p.balance=START); SUBS=[]; demoHistory=[]; ROOM.stage='lobby'; ROOM.round=0; lastSig=''; render(); }
 
 function renderDemo(app){
   const right=`<span class="pill demo">데모</span><span class="pill">진행자 시점</span>`;
@@ -829,47 +772,42 @@ function renderDemo(app){
   if(stage==='lobby') body=demoLobby();
   else if(stage==='round') body=demoRoundView();
   else if(stage==='reveal') body=hostRevealView().replace('hostNext()','demoNext()');
-  else if(stage==='final') body=hostFinal().replace('location.reload()','demoExit()');
+  else if(stage==='final') body=hostFinal().replace('hostRestart()','demoRestart()').replace('location.reload()','demoStart()');
   app.innerHTML = topbar(right)+`<div class="wrap wide">${body}</div>`;
 }
 function demoLobby(){
   const plist=PLAYERS.map((p,i)=>`<div class="prow"><span class="rk">${i+1}</span><span class="pn">${esc(p.name)} <span class="tiny muted">(가상 학생)</span></span><span class="tagx tag-done">입장</span></div>`).join('');
   return `<div class="card">
-    <div class="notice" style="margin-bottom:14px">🕹️ <b>데모 모드</b>입니다. 가상 학생 8명이 자동으로 투자해요. 진행자가 되어 라운드를 넘기며 대시보드를 체험해 보세요. 실제 수업에선 진짜 학생들이 방 코드로 접속합니다.</div>
+    <div class="notice" style="margin-bottom:14px">🕹️ <b>데모 모드</b>입니다. 가상 학생 8명이 자동으로 매수해요. 진행자가 되어 라운드를 넘기며 대시보드를 체험해 보세요.</div>
     <div class="center"><div class="bigcode" style="font-size:28px">DEMO-01</div></div>
-    <button class="btn btn-green" style="margin-top:6px" onclick="demoStartGame()">게임 시작 · 1라운드 열기</button>
-    <button class="btn btn-line btn-sm" style="margin-top:10px" onclick="demoStudentPreview(1)">🎓 학생이 보는 화면 미리보기</button>
-  </div>
+    <button class="btn btn-green btn-lg" style="margin-top:6px" onclick="demoStartGame()">게임 시작 · 1라운드 열기</button>
+    <button class="btn btn-line btn-sm" style="margin-top:10px" onclick="demoStudentPreview(1)">🎓 학생이 보는 화면 미리보기</button></div>
   <div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><h3>입장한 가상 학생</h3><span class="pill">${PLAYERS.length}명</span></div><div class="plist">${plist}</div></div>`;
 }
 function demoRoundView(){
   const round=ROOM.round; const done=SUBS.length,total=PLAYERS.length;
   const ranked=[...PLAYERS].sort((a,b)=>Number(b.balance)-Number(a.balance));
-  const rows=ranked.map((p,i)=>`<div class="prow"><span class="rk ${i<3?'top':''}">${i+1}</span><span class="pn">${esc(p.name)}</span><span class="pb num">${fmt(p.balance)}<span class="tiny muted">만원</span></span><span class="tagx tag-done">제출완료</span></div>`).join('');
+  const rows=ranked.map((p,i)=>`<div class="prow"><span class="rk ${i<3?'top':''}">${i+1}</span><span class="pn">${esc(p.name)}</span><span class="pb num">${won(p.balance)}</span><span class="tagx tag-done">제출완료</span></div>`).join('');
   return `<div class="card">
     <div style="display:flex;justify-content:space-between;align-items:center"><div><div class="eyebrow">진행 중</div><h2 style="margin-top:3px">${round}라운드 · 투자 접수</h2></div>
     <div class="center"><div class="num" style="font-size:26px;font-weight:800">${done}<span class="muted" style="font-size:16px">/${total}</span></div><div class="tiny muted">제출</div></div></div>
     <div class="btn-row" style="margin-top:12px">
       <button class="btn btn-line btn-sm" style="flex:none;width:auto;padding:11px 16px" onclick="openNews(${round})">📰 뉴스</button>
       <button class="btn btn-line btn-sm" style="flex:none;width:auto;padding:11px 16px" onclick="demoStudentPreview(${round})">🎓 학생화면</button>
-      <button class="btn btn-green" onclick="demoReveal()">결과 공개 →</button>
-    </div>
-  </div>
+      <button class="btn btn-green" onclick="demoReveal()">결과 공개 →</button></div></div>
   <div class="card"><h3 style="margin-bottom:10px">실시간 현황 (자산순)</h3><div class="plist">${rows}</div></div>`;
 }
 function demoStudentPreview(round){
-  const alloc={}; // fresh preview
   const newsHtml=NEWS[round].items.slice(0,4).map(n=>`<div class="news-item"><span class="sec">${n.sec}</span><div class="hd">${n.hd}</div><div class="bd">${n.bd}</div></div>`).join('');
-  const coHtml=COMPANIES.slice(0,5).map(c=>`<div class="co"><div class="co-top"><span class="badge" style="background:${c.color}">${c.name[0]}</span><div class="meta"><div class="nm">${c.name}</div><div class="tag">${c.sector}</div></div><div class="inbox"><input class="amt num" placeholder="0" disabled><span class="won">만원</span></div></div></div>`).join('');
+  const coHtml=COMPANIES.slice(0,5).map(c=>{const price=priceAt(c.k,round);return `<div class="co"><div class="co-top"><span class="badge" style="background:${c.color}">${c.name[0]}</span><div class="meta"><div class="nm">${c.name}</div><div class="tag">${c.sector}</div></div><div class="px"><div class="p num">${fmt(price)}<span style="font-size:11px">원</span></div><div class="pl">현재가</div></div></div></div>`;}).join('');
   showModal(`<div class="notice" style="margin-bottom:12px">학생 휴대폰에 보이는 화면 예시예요 (일부만 표시).</div>
     <div class="paper-head"><div class="k">KOSPI IN THE CLASS</div><div class="t">코스피일보 · ${round}라운드</div></div>${newsHtml}
-    <h3 style="margin:14px 0 8px">💰 투자 (10개 기업 중 일부)</h3>${coHtml}
-    <div class="notice" style="margin-top:10px">실제 화면에선 남은 현금·합계가 하단에 고정되고, ‘투자 확정’을 누르면 제출돼요.</div>`);
+    <h3 style="margin:14px 0 8px">💰 매수 (10개 기업 중 일부)</h3>${coHtml}
+    <div class="notice" style="margin-top:10px">실제 화면에선 주수/금액을 입력하면 주문금액이 계산되고, 하단에 남은 현금과 ‘투자 확정’ 버튼이 고정돼요.</div>`);
 }
 
-/* ===================== boot ===================== */
-if(location.hash.startsWith('#/play') && !ME.role){ renderJoin(el('app')); }
-else { render(); }
+/* boot */
+if(location.hash.startsWith('#/play') && !ME.role){ renderJoin(el('app')); } else { render(); }
 </script>
 </body>
 </html>
