@@ -192,11 +192,22 @@ input.field::placeholder{color:var(--faint);font-weight:500}
 <script>
 /* ===================== CONFIG (백엔드 접속) ===================== */
 const CFG = {
-  url: 'https://ejuzbtktohpqcrluviqa.supabase.co',
-  key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVqdXpidGt0b2hwcWNybHV2aXFhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MDcxMzksImV4cCI6MjA5NzE4MzEzOX0.q08cc2U4jXq0AMG-Lggo6a79WEIWHxZD5lhzCLSaGu4',
+  url: 'https://jfooezuqzskkjyfbthej.supabase.co',
+  key: 'sb_publishable_qTUqE7CrZDNN98V6QRSEpg_HCvksNAE',
 };
+/* 기기별 게임 토큰: DB가 이 토큰으로 진행자/학생 권한을 확인함 (x-game-token 헤더) */
+const GAME_TOKEN = (()=>{ const K='kitc_game_token'; let t=null;
+  try{ t=localStorage.getItem(K); }catch(e){}
+  if(!/^[a-f0-9]{64}$/.test(t||'')){ const b=new Uint8Array(32); crypto.getRandomValues(b);
+    t=Array.from(b,x=>x.toString(16).padStart(2,'0')).join(''); try{ localStorage.setItem(K,t); }catch(e){} }
+  return t; })();
+let ROOM_CODE_HDR = ''; // 학생이 방을 읽을 때 필요한 방 코드 (x-room-code 헤더)
+function gameFetch(input, init={}){
+  const h=new Headers(init.headers||{}); h.set('x-game-token',GAME_TOKEN);
+  if(ROOM_CODE_HDR) h.set('x-room-code',ROOM_CODE_HDR);
+  return fetch(input,{...init,headers:h}); }
 let sb = null;
-try { if (window.supabase && CFG.url && CFG.key) sb = window.supabase.createClient(CFG.url, CFG.key); } catch(e){ console.warn(e); }
+try { if (window.supabase && CFG.url && CFG.key) sb = window.supabase.createClient(CFG.url, CFG.key, {global:{fetch:gameFetch}}); } catch(e){ console.warn(e); }
 const LIVE_OK = !!sb;
 
 /* ===================== CONFIG DATA (게임 콘텐츠) =====================
@@ -389,8 +400,8 @@ async function createRoomLive(){
   if(busy) return; busy=true;
   try{
     let room=null;
-    for(let i=0;i<6;i++){ const code=genCode(), secret=genSecret();
-      const {data,error}=await sb.from('invest_rooms').insert({code,host_secret:secret,stage:'lobby',round:0}).select().single();
+    for(let i=0;i<6;i++){ const code=genCode(), secret=genSecret(); ROOM_CODE_HDR=code;
+      const {data,error}=await sb.from('invest_rooms').insert({code,stage:'lobby',round:0}).select().single();
       if(!error){ room=data; ME.hostSecret=secret; break; } }
     if(!room){ alert('방 생성에 실패했어요. 다시 시도해 주세요.'); busy=false; return; }
     ME.role='host'; ME.mode='live'; ME.roomId=room.id; ME.roomCode=room.code; ROOM=room; PLAYERS=[]; SUBS=[];
@@ -558,6 +569,7 @@ async function doJoin(){
   if(!LIVE_OK){ alert('온라인 서버에 연결되어 있지 않아요.'); return; }
   if(busy) return; busy=true;
   try{
+    ROOM_CODE_HDR=code;
     const {data:rooms}=await sb.from('invest_rooms').select('*').eq('code',code).limit(1);
     if(!rooms||!rooms.length){ alert('그런 방 코드를 찾을 수 없어요. 진행자에게 다시 확인해 주세요.'); busy=false; return; }
     const room=rooms[0];
